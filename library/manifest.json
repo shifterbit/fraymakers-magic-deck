@@ -1,8 +1,8 @@
 {
-  "resourceId": "assisttemplate",
+  "resourceId": "magicdeck",
   "content": [{
-    "id": "assisttemplate",
-    "name": "Assist Template",
+    "id": "magicdeck",
+    "name": "Magic Deck",
     "description": "An example assist character for Fraymakers.",
     "type": "assist",
     "objectStatsId": "assisttemplateAssistObjectStats",

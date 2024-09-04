@@ -20,8 +20,8 @@
   ],
   "publishFolders": [
     {
-      "id": "build0",
-      "path": "./build"
+      "id": "magicdeck",
+      "path": "../../Games/Steam/steamapps/common/Fraymakers/custom/MagicDeck"
     }
   ],
   "snapToPixel": true,
