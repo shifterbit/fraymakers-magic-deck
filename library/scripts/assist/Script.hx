@@ -11,25 +11,28 @@ STATE_OUTRO = 4;
 var SPAWN_X_DISTANCE = 0; // How far in front of player to spawn
 var SPAWN_HEIGHT = 0; // How high up from player to spawn
 var deck = {
-	usable: true,
+	usable: false,
+	cooldown: false,
 	cards: [],
 	capacity: 0,
 	spells: [],
 };
 
-function keepAssistBarAtZero(event) {
+var cardSprites: Array<Sprite> = [];
+var currCard: int = 0;
+
+function startCooldwon() {
+	// self.addTimer()
+}
+
+function zeroAssist() {
 	self.getOwner().setAssistCharge(0);
+
 }
 
-function lockAssistCharge() {
-	self.getOwner().addEventListener(CharacterEvent.ATTACK_END, keepAssistBarAtZero, { persistent: true });
-	self.getOwner().addEventListener(CharacterEvent.ATTACK_START, keepAssistBarAtZero, { persistent: true });
+function keepAssistBarAtZero(event) {
+	zeroAssist();
 }
-function unlockAssistCharge() {
-	self.getOwner().removeEventListener(CharacterEvent.ATTACK_END, keepAssistBarAtZero);
-	self.getOwner().removeEventListener(CharacterEvent.ATTACK_START, keepAssistBarAtZero);
-}
-
 
 function createSpell(spellFn, predicateFn) {
 	return {
@@ -67,9 +70,10 @@ function addCard(value: int) {
 	var card = value % 10;
 	if (deck.cards.length < deck.capacity) {
 		deck.cards.push(card);
-		Engine.log(deck);
-
-	} else {
+		var sprite: Sprite = cardSprites[currCard];
+		sprite.currentFrame = card + 2;
+		currCard += 1;
+		deck.usable =  deck.cards.length == deck.capacity;
 
 	}
 }
@@ -94,6 +98,10 @@ function drawSpell() {
 	Engine.log(deck);
 	if (deck.cards.length > 0) {
 		var card = deck.cards.pop();
+		var sprite: CustomGameObject = cardSprites.pop();
+		sprite.dispose();
+		currCard -= 1;
+
 		castFirstAvailaleSpell(card);
 	}
 }
@@ -101,22 +109,39 @@ function drawSpell() {
 function castFireball() {
 	var res = self.getResource().getContent("fireball");
 	var proj = match.createProjectile(res, self.getOwner());
-
-	Engine.log("Fireball cast");
-	Engine.log(self.getOwner());
 }
 function alwaysTrue(card) {
 	return true;
 }
 var fireball = createSpell(castFireball, alwaysTrue);
 
+
 // Runs on object init
 function initialize() {
 	initializeDeckWithSpells(deck, 3, [fireball]);
 	Engine.log("Initializing");
+	var capacity = deck.capacity;
+	Engine.log(capacity);
+	Engine.forCount(capacity, function (idx: int) {
+		var card = Sprite.create(self.getResource().getContent("cards"));
+		cardSprites.push(card);
+		return true;
+
+	}, []);
+
+	Engine.forEach(cardSprites, function (sprite: Sprite ,idx: int) {
+		 self.getOwner().getDamageCounterContainer().addChildAt(sprite, idx);
+		 sprite.scaleX = 0.75;
+		 sprite.scaleY = 0.75;
+		 sprite.x = sprite.x + (40 * idx);
+		 sprite.y = sprite.y - 8;
+		 Engine.log(self.getOwner().getDamageCounterContainer().children);
+		 return true;
+	}, []);
+
+
+
 	self.getOwner().addEventListener(GameObjectEvent.HIT_DEALT, addCardEvent, { persistent: true });
-	lockAssistCharge();
-	Engine.log("Added Event Listener");
 	// Face the same direction as the user
 	if (self.getOwner().isFacingLeft()) {
 		self.faceLeft();
@@ -131,51 +156,22 @@ function initialize() {
 
 
 function update() {
-	// Behavior for each state
-	if (self.inState(STATE_IDLE)) {
-		if (self.finalFramePlayed()) {
-			// Bounce into air, activate gravity, and switch to jump state
-			self.unattachFromFloor();
-			self.setYVelocity(-20);
-			self.updateGameObjectStats({ gravity: 1 });
-			self.toState(STATE_JUMP);
-		}
-	} else if (self.inState(STATE_JUMP)) {
-		// Wait until assist starts to fall
-		if (self.getYVelocity() >= 0) {
-			// Move to fall state
-			self.toState(STATE_FALL);
-		}
-	} else if (self.inState(STATE_FALL)) {
-		// Wait until assist lands
-		if (self.isOnFloor()) {
-			// Fire two projectiles and switch to slam state
+	self.getOwner().setAssistCharge(0);
 
-			var proj1 = match.createProjectile(self.getResource().getContent("assisttemplateProjectile"), self);
-			var proj2 = match.createProjectile(self.getResource().getContent("assisttemplateProjectile"), self);
-			proj2.flip(); // Flip the other projectile the opposite way
-			self.toState(STATE_SLAM);
-		}
-	} else if (self.inState(STATE_SLAM)) {
-		if (self.finalFramePlayed()) {
-			// Move to outro state and start fading away
-			self.toState(STATE_OUTRO);
+	if (deck.usable) {
+		var owner: Character = self.getOwner();
+		self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
+		if (owner.getHeldControls().ACTION) {
+
 			drawSpell();
-			Engine.log(deck);
-
-			Common.startFadeOut();
-		}
-	} else if (self.inState(STATE_OUTRO)) {
-		if (Common.fadeOutComplete() && self.finalFramePlayed()) {
-			// Destroy
-			self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
-			self.destroy();
+			if (deck.cards.length == 0) {
+				self.destroy();
+			}
 		}
 	}
+
 }
 function onTeardown() {
-	lockAssistCharge();
-
 
 }
 

@@ -40,6 +40,9 @@ function onHit(event) {
 }
 
 function update() {
+	if (self.finalFramePlayed()) {
+		self.playFrame(1);
+	}
 	if (self.inState(PState.ACTIVE)) {
 		life.dec();
 		if (life.get() <= 0) {

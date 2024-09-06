@@ -8,26 +8,14 @@ STATE_SLAM = 3;
 STATE_OUTRO = 4;
 
 {
-	spriteContent: self.getResource().getContent("assisttemplate"),
+	spriteContent: self.getResource().getContent("cards"),
 	initialState: STATE_IDLE,
 	stateTransitionMapOverrides: [
 		STATE_IDLE => {
-			animation: "idle"
+			animation: "nothing"
 		},
-		STATE_JUMP => {
-			animation: "jump"
-		},
-		STATE_FALL => {
-			animation: "fall"
-		},
-		STATE_SLAM => {
-			animation: "slam"
-		},
-		STATE_OUTRO => {
-			animation: "outro"
-		}
 	],
 	gravity: 0,
 	terminalVelocity: 20,
-	assistChargeValue:50
+	assistChargeValue: 20
 }

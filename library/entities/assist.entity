@@ -10,6 +10,16 @@
       }
     },
     {
+      "$id": "90f46218-c91f-40fc-9734-eb9df5579179",
+      "layers": [
+        "02df8897-c512-4097-93e5-ebc416ec792e",
+        "7c1dcb08-a878-4d1e-b19c-cc10fd97a832"
+      ],
+      "name": "nothing",
+      "pluginMetadata": {
+      }
+    },
+    {
       "$id": "b3eb4844-33e5-416c-95df-5eed5138101c",
       "layers": [
         "e981d6e8-b303-4342-bbbc-179cab6fcf95"
@@ -382,6 +392,24 @@
       "tweenType": "LINEAR",
       "tweened": false,
       "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "8425e1f5-d8ee-4887-a352-d1a1685d2d3d",
+      "code": "",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "01b2a26a-32f0-4b91-9254-88f76dc34335",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "symbol": null,
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "IMAGE"
     }
   ],
   "layers": [
@@ -550,6 +578,31 @@
         }
       },
       "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "7c1dcb08-a878-4d1e-b19c-cc10fd97a832",
+      "hidden": false,
+      "keyframes": [
+        "8425e1f5-d8ee-4887-a352-d1a1685d2d3d"
+      ],
+      "language": "hscript",
+      "locked": false,
+      "name": "Frame Script Layer",
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "02df8897-c512-4097-93e5-ebc416ec792e",
+      "hidden": false,
+      "keyframes": [
+        "01b2a26a-32f0-4b91-9254-88f76dc34335"
+      ],
+      "locked": false,
+      "name": "Image Layer",
+      "pluginMetadata": {
+      },
+      "type": "IMAGE"
     }
   ],
   "paletteMap": {
