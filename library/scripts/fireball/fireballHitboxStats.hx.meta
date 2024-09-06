@@ -1,0 +1,13 @@
+{
+  "export": true,
+  "guid": "e8a5881a-baf6-4b8b-bc93-ecb1eb4b11d0",
+  "id": "fireballHitboxStats",
+  "language": "hscript",
+  "pluginMetadata": {
+  },
+  "plugins": [
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

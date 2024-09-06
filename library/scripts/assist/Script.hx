@@ -8,15 +8,35 @@ STATE_SLAM = 3;
 STATE_OUTRO = 4;
 
 
-
 var SPAWN_X_DISTANCE = 0; // How far in front of player to spawn
 var SPAWN_HEIGHT = 0; // How high up from player to spawn
-var deck = {};
-var deckFull = false;
+var deck = {
+	usable: true,
+	cards: [],
+	capacity: 0,
+	spells: [],
+};
+
+function keepAssistBarAtZero(event) {
+	self.getOwner().setAssistCharge(0);
+}
+
+function lockAssistCharge() {
+	self.getOwner().addEventListener(CharacterEvent.ATTACK_END, keepAssistBarAtZero, { persistent: true });
+	self.getOwner().addEventListener(CharacterEvent.ATTACK_START, keepAssistBarAtZero, { persistent: true });
+}
+function unlockAssistCharge() {
+	self.getOwner().removeEventListener(CharacterEvent.ATTACK_END, keepAssistBarAtZero);
+	self.getOwner().removeEventListener(CharacterEvent.ATTACK_START, keepAssistBarAtZero);
+}
 
 
 function createSpell(spellFn, predicateFn) {
-	return [spellFn, predicateFn];
+	return {
+		cast: spellFn,
+		predicate: predicateFn
+	};
+
 }
 
 function trySpell(spell, score) {
@@ -28,74 +48,74 @@ function trySpell(spell, score) {
 	}
 }
 
-function castFirstAvailaleSpell(deck) {
-	var spellList = deck.spells;
-	var score = deck.score;
-	for (spell in spellList) {
-		casted = trySpell(spell, score);
+function castFirstAvailaleSpell(card: int) {
+	for (spell in deck.spells) {
+		casted = trySpell(spell, card);
 		if (casted) {
 			return;
 		};
+	}
+}
+
+function addCardEvent(event: GameObjectEvent) {
+	var hitboxStats: HitboxStats = event.data.hitboxStats;
+	var damage = hitboxStats.damage;
+	addCard(damage);
+}
+
+function addCard(value: int) {
+	var card = value % 10;
+	if (deck.cards.length < deck.capacity) {
+		deck.cards.push(card);
+		Engine.log(deck);
+
+	} else {
 
 	}
 }
 
-function addCard(event: GameObjectEvent) {
-	var hitboxStats: HitboxStats = event.data.hitboxStats;
-	var damage = hitboxStats.damage;
-	var card = damage % 10;
-	Engine.log(damage);
-	Engine.log(hitboxStats);
-	Engine.log(card);
-	if (deck.cards.length < 3) {
-		deck.cards.push(card);
-	};
-	Engine.log(deck);
-	Engine.log(deck.cards);
-	Engine.log("GOT EVENT");
-
-}
-
-
-function initializeDeckWithSpells(deck, max, spells: Array<Array<Dynamic>>) {
+function initializeDeckWithSpells(deck, capacity: int, spells) {
 	var spellset = [];
 	for (spell in spells) {
-		action = spell[0];
-		predicate = spell[1];
-		magicSpell = {
-			cast: actiion,
-			predicate: predicate
-		};
-		spellset.push(magicSpell);
+		Engine.log(spell);
+		spellset.push(spell);
 
 
 	}
 	deck.spells = spellset;
-	deck.max = max;
+	deck.capacity = capacity;
 	deck.cards = [];
-	deck.score = -1;
 }
 
-function getDeckScore() {
-	if (deck.score != -1) {
-		return deck.score;
-	}
 
 
-	sum = 0;
-	for (card in deck.cards) {
-		sum += card;
+
+function drawSpell() {
+	Engine.log(deck);
+	if (deck.cards.length > 0) {
+		var card = deck.cards.pop();
+		castFirstAvailaleSpell(card);
 	}
-	deck.score = sum;
-	return deck.score;
 }
 
+function castFireball() {
+	var res = self.getResource().getContent("fireball");
+	var proj = match.createProjectile(res, self.getOwner());
+
+	Engine.log("Fireball cast");
+	Engine.log(self.getOwner());
+}
+function alwaysTrue(card) {
+	return true;
+}
+var fireball = createSpell(castFireball, alwaysTrue);
 
 // Runs on object init
 function initialize() {
-	initializeDeckWithSpells(deck, 0, []);
+	initializeDeckWithSpells(deck, 3, [fireball]);
 	Engine.log("Initializing");
-	self.getOwner().addEventListener(GameObjectEvent.HIT_DEALT, addCard, {persistent: true});
+	self.getOwner().addEventListener(GameObjectEvent.HIT_DEALT, addCardEvent, { persistent: true });
+	lockAssistCharge();
 	Engine.log("Added Event Listener");
 	// Face the same direction as the user
 	if (self.getOwner().isFacingLeft()) {
@@ -130,6 +150,7 @@ function update() {
 		// Wait until assist lands
 		if (self.isOnFloor()) {
 			// Fire two projectiles and switch to slam state
+
 			var proj1 = match.createProjectile(self.getResource().getContent("assisttemplateProjectile"), self);
 			var proj2 = match.createProjectile(self.getResource().getContent("assisttemplateProjectile"), self);
 			proj2.flip(); // Flip the other projectile the opposite way
@@ -139,17 +160,22 @@ function update() {
 		if (self.finalFramePlayed()) {
 			// Move to outro state and start fading away
 			self.toState(STATE_OUTRO);
+			drawSpell();
+			Engine.log(deck);
+
 			Common.startFadeOut();
 		}
 	} else if (self.inState(STATE_OUTRO)) {
 		if (Common.fadeOutComplete() && self.finalFramePlayed()) {
 			// Destroy
-			self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, addCard);
+			self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
 			self.destroy();
 		}
 	}
 }
 function onTeardown() {
+	lockAssistCharge();
+
 
 }
 

@@ -108,7 +108,7 @@
   "pluginMetadata": {
     "com.fraymakers.FraymakersMetadata": {
       "spritesheetGroup": "menu",
-      "version": "0.1.1"
+      "version": "0.3.0"
     }
   },
   "plugins": [

@@ -1,0 +1,18 @@
+{
+  "export": true,
+  "guid": "2a3526f0-2a02-429c-98e5-c32329573592",
+  "id": "fireballScript",
+  "language": "hscript",
+  "pluginMetadata": {
+    "com.fraymakers.FraymakersMetadata": {
+      "objectType": "PROJECTILE",
+      "version": "0.3.0"
+    }
+  },
+  "plugins": [
+    "com.fraymakers.FraymakersMetadata"
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

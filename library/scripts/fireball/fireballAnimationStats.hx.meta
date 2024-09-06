@@ -1,0 +1,13 @@
+{
+  "export": true,
+  "guid": "a6c768c0-8f1d-40b0-b6ef-dead0abfcb60",
+  "id": "fireballAnimationStats",
+  "language": "hscript",
+  "pluginMetadata": {
+  },
+  "plugins": [
+  ],
+  "tags": [
+  ],
+  "version": 1
+}
