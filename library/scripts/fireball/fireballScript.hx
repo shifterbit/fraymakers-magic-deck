@@ -4,16 +4,17 @@ var X_SPEED = 7; // X speed of water
 var Y_SPEED = 0; // Y Speed of water
 
 // Instance vars
-var life = self.makeInt(60 * 20);
+var life = self.makeInt(60 * 15);
+var multiplier = 1;
 
-function initialize(){
+function initialize() {
 	// self.addEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit, { persistent: true });
-	// self.addEventListener(GameObjectEvent.HIT_DEALT, onHit, { persistent: true });
+	self.addEventListener(GameObjectEvent.HIT_DEALT, onHit, { persistent: true });
 
 	self.setCostumeIndex(self.getRootOwner().getCostumeIndex());
 
-	
-    // Set up horizontal reflection
+
+	// Set up horizontal reflection
 	Common.enableReflectionListener({ mode: "X", replaceOwner: true });
 	self.setX(self.getOwner().getX());
 	self.setY(self.getOwner().getY());
@@ -21,7 +22,7 @@ function initialize(){
 	self.setState(PState.ACTIVE);
 	self.setXSpeed(X_SPEED);
 	self.setYSpeed(Y_SPEED);
-	
+
 
 }
 
@@ -35,25 +36,30 @@ function onGroundHit(event) {
 function onHit(event) {
 	self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
+	if (life.get() > 60) {
+		life.set(60);
+	}
 
 	// self.toState(PState.DESTROYING);
 }
 
 function update() {
-	if (self.finalFramePlayed()) {
-		self.playFrame(1);
-	}
+	Engine.log("current life " + life.get());
+
 	if (self.inState(PState.ACTIVE)) {
 		life.dec();
 		if (life.get() <= 0) {
-			self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
+			//self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 			self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
-			self.toState(PState.DESTROYING);
+			self.destroy();
 		}
+	}
+	if (self.finalFramePlayed()) {
+		self.playFrame(1);
 	}
 }
 
 function onTeardown() {
-	self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
+	//	self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
 }

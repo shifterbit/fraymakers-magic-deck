@@ -3,7 +3,9 @@
     {
       "$id": "c6103b11-75d7-42bf-a4ea-eb058c27c330",
       "layers": [
-        "a7e2bfc7-a439-4782-876a-f33ff69e7f9c"
+        "a7e2bfc7-a439-4782-876a-f33ff69e7f9c",
+        "145fb364-2f5f-463c-9546-a95361b09c70",
+        "5038f5b7-26e4-42b0-867f-d277607d6b64"
       ],
       "name": "projectileSpawn",
       "pluginMetadata": {
@@ -175,6 +177,158 @@
       "tweenType": "LINEAR",
       "tweened": false,
       "type": "IMAGE"
+    },
+    {
+      "$id": "71b9034f-f9be-414b-bd95-ab8a4a2ad670",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "symbol": "2ba9db16-bef9-4341-b532-8ae1a0323f05",
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "a3ddaba4-809c-4eef-9e30-8cfc3cc99d2b",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "symbol": null,
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "fe3b0c34-1153-4c8b-8091-68c74fe6d8fd",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "symbol": null,
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "97afe72b-88bd-4b41-8231-af68f4c89b94",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "symbol": "a97cf212-c336-45eb-99c7-b6074d1f76b7",
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "79efbe2d-68fa-4999-a036-1401e8084e3d",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "symbol": "0ba0760c-6474-4e4f-8d05-36a5acae5913",
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "ef1a8a9b-aaf6-49af-827a-283952fc8de9",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "symbol": "b0d593e5-1edc-495e-918c-50b05bd52557",
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "3b74f47f-4bfa-4c50-95e4-0797947fd4fb",
+      "length": 2,
+      "pluginMetadata": {
+      },
+      "symbol": "65352efc-c822-406e-aa5b-9ee4ee360b81",
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "db2c9fde-1451-479b-9931-e82bf7f492b1",
+      "length": 3,
+      "pluginMetadata": {
+      },
+      "symbol": null,
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "28606c19-1ca1-4498-b210-20f193c12211",
+      "code": "self.reactivateHitboxes(); ",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "1cc90b1e-a1a4-4397-b784-c4ea4fa660e4",
+      "code": "",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "1f5a4952-3992-489d-ab98-29d125b2e38a",
+      "code": null,
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "b05a4c40-4c33-4890-8079-fee3ff7c4520",
+      "code": "",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "88f4ad1e-9192-4e44-a0fc-63ba1ea85a19",
+      "code": "self.reactivateHitboxes(); ",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "d2e4a883-d421-4c71-9f7c-ffc82f90e8e5",
+      "code": "",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "dcf1047a-9902-4432-a477-edfed5bdb67c",
+      "code": null,
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "14860d6b-3f61-417e-ad92-1a7f36282fac",
+      "code": "",
+      "length": 3,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "0d4a3063-6b3e-43a6-90e9-b2ed6001fe4b",
+      "code": "self.reactivateHitboxes(); ",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
     }
   ],
   "layers": [
@@ -194,7 +348,7 @@
         "a8dc979c-39c7-4420-9400-0beb1ae24aea",
         "f3e3bde0-575c-4a1b-9499-7bd7989d8d59"
       ],
-      "locked": false,
+      "locked": true,
       "name": "Image Layer",
       "pluginMetadata": {
       },
@@ -273,6 +427,52 @@
       "pluginMetadata": {
       },
       "type": "IMAGE"
+    },
+    {
+      "$id": "145fb364-2f5f-463c-9546-a95361b09c70",
+      "defaultAlpha": 0.5,
+      "defaultColor": "0xff0000",
+      "hidden": false,
+      "keyframes": [
+        "71b9034f-f9be-414b-bd95-ab8a4a2ad670",
+        "a3ddaba4-809c-4eef-9e30-8cfc3cc99d2b",
+        "97afe72b-88bd-4b41-8231-af68f4c89b94",
+        "fe3b0c34-1153-4c8b-8091-68c74fe6d8fd",
+        "3b74f47f-4bfa-4c50-95e4-0797947fd4fb",
+        "ef1a8a9b-aaf6-49af-827a-283952fc8de9",
+        "db2c9fde-1451-479b-9931-e82bf7f492b1",
+        "79efbe2d-68fa-4999-a036-1401e8084e3d"
+      ],
+      "locked": false,
+      "name": "hitbox0",
+      "pluginMetadata": {
+        "com.fraymakers.FraymakersMetadata": {
+          "collisionBoxType": "HIT_BOX",
+          "index": 0
+        }
+      },
+      "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "5038f5b7-26e4-42b0-867f-d277607d6b64",
+      "hidden": false,
+      "keyframes": [
+        "28606c19-1ca1-4498-b210-20f193c12211",
+        "1cc90b1e-a1a4-4397-b784-c4ea4fa660e4",
+        "1f5a4952-3992-489d-ab98-29d125b2e38a",
+        "b05a4c40-4c33-4890-8079-fee3ff7c4520",
+        "88f4ad1e-9192-4e44-a0fc-63ba1ea85a19",
+        "d2e4a883-d421-4c71-9f7c-ffc82f90e8e5",
+        "dcf1047a-9902-4432-a477-edfed5bdb67c",
+        "14860d6b-3f61-417e-ad92-1a7f36282fac",
+        "0d4a3063-6b3e-43a6-90e9-b2ed6001fe4b"
+      ],
+      "language": "hscript",
+      "locked": false,
+      "name": "Frame Script Layer",
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
     }
   ],
   "paletteMap": {
@@ -453,6 +653,81 @@
       "type": "IMAGE",
       "x": -96,
       "y": -78
+    },
+    {
+      "$id": "2ba9db16-bef9-4341-b532-8ae1a0323f05",
+      "alpha": null,
+      "color": null,
+      "pivotX": 74,
+      "pivotY": 38,
+      "pluginMetadata": {
+      },
+      "rotation": 0,
+      "scaleX": 150,
+      "scaleY": 75,
+      "type": "COLLISION_BOX",
+      "x": -57,
+      "y": -86
+    },
+    {
+      "$id": "a97cf212-c336-45eb-99c7-b6074d1f76b7",
+      "alpha": null,
+      "color": null,
+      "pivotX": 74,
+      "pivotY": 38,
+      "pluginMetadata": {
+      },
+      "rotation": 0,
+      "scaleX": 150,
+      "scaleY": 75,
+      "type": "COLLISION_BOX",
+      "x": -57,
+      "y": -80
+    },
+    {
+      "$id": "0ba0760c-6474-4e4f-8d05-36a5acae5913",
+      "alpha": null,
+      "color": null,
+      "pivotX": 45,
+      "pivotY": 37,
+      "pluginMetadata": {
+      },
+      "rotation": 0,
+      "scaleX": 90,
+      "scaleY": 74,
+      "type": "COLLISION_BOX",
+      "x": 3,
+      "y": -76
+    },
+    {
+      "$id": "b0d593e5-1edc-495e-918c-50b05bd52557",
+      "alpha": null,
+      "color": null,
+      "pivotX": 55,
+      "pivotY": 38,
+      "pluginMetadata": {
+      },
+      "rotation": 0,
+      "scaleX": 111,
+      "scaleY": 75,
+      "type": "COLLISION_BOX",
+      "x": -10,
+      "y": -83
+    },
+    {
+      "$id": "65352efc-c822-406e-aa5b-9ee4ee360b81",
+      "alpha": null,
+      "color": null,
+      "pivotX": 57,
+      "pivotY": 44,
+      "pluginMetadata": {
+      },
+      "rotation": 0,
+      "scaleX": 116,
+      "scaleY": 87,
+      "type": "COLLISION_BOX",
+      "x": -9,
+      "y": -91
     }
   ],
   "tags": [

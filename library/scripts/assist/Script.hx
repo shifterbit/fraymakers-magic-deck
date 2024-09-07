@@ -22,7 +22,19 @@ var cardSprites: Array<Sprite> = [];
 var currCard: int = 0;
 
 function startCooldwon() {
-	// self.addTimer()
+	deck.cooldown = true;
+	Engine.log("STARTING COOLDOWN, Cooldown status is " + deck.cooldown);
+
+}
+function endCoolDown() {
+	Engine.log("ENDING COOLDOWN, Cooldown status is " + deck.cooldown);
+	deck.cooldown = false;
+
+}
+
+function startCooldownTimer() {
+	self.addTimer(60, 1, endCoolDown, { persistent: true });
+
 }
 
 function zeroAssist() {
@@ -61,9 +73,11 @@ function castFirstAvailaleSpell(card: int) {
 }
 
 function addCardEvent(event: GameObjectEvent) {
-	var hitboxStats: HitboxStats = event.data.hitboxStats;
-	var damage = hitboxStats.damage;
-	addCard(damage);
+	if (!deck.cooldown) {
+		var hitboxStats: HitboxStats = event.data.hitboxStats;
+		var damage = hitboxStats.damage;
+		addCard(damage);
+	}
 }
 
 function addCard(value: int) {
@@ -73,7 +87,9 @@ function addCard(value: int) {
 		var sprite: Sprite = cardSprites[currCard];
 		sprite.currentFrame = card + 2;
 		currCard += 1;
-		deck.usable =  deck.cards.length == deck.capacity;
+		deck.usable = deck.cards.length == deck.capacity;
+		startCooldwon();
+		startCooldownTimer();
 
 	}
 }
@@ -96,12 +112,14 @@ function initializeDeckWithSpells(deck, capacity: int, spells) {
 
 function drawSpell() {
 	Engine.log(deck);
-	if (deck.cards.length > 0) {
+	if (deck.cards.length > 0 && !deck.cooldown) {
+		deck.cooldown = true;
+		startCooldwon();
+		startCooldownTimer();
 		var card = deck.cards.pop();
 		var sprite: CustomGameObject = cardSprites.pop();
 		sprite.dispose();
 		currCard -= 1;
-
 		castFirstAvailaleSpell(card);
 	}
 }
@@ -129,14 +147,14 @@ function initialize() {
 
 	}, []);
 
-	Engine.forEach(cardSprites, function (sprite: Sprite ,idx: int) {
-		 self.getOwner().getDamageCounterContainer().addChildAt(sprite, idx);
-		 sprite.scaleX = 0.75;
-		 sprite.scaleY = 0.75;
-		 sprite.x = sprite.x + (40 * idx);
-		 sprite.y = sprite.y - 8;
-		 Engine.log(self.getOwner().getDamageCounterContainer().children);
-		 return true;
+	Engine.forEach(cardSprites, function (sprite: Sprite, idx: int) {
+		self.getOwner().getDamageCounterContainer().addChildAt(sprite, idx);
+		sprite.scaleX = 0.75;
+		sprite.scaleY = 0.75;
+		sprite.x = sprite.x + (40 * idx);
+		sprite.y = sprite.y - 8;
+		Engine.log(self.getOwner().getDamageCounterContainer().children);
+		return true;
 	}, []);
 
 
@@ -161,8 +179,8 @@ function update() {
 	if (deck.usable) {
 		var owner: Character = self.getOwner();
 		self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
-		if (owner.getHeldControls().ACTION) {
-
+		if (owner.getHeldControls().ACTION && !deck.cooldown) {
+			Engine.log(deck);
 			drawSpell();
 			if (deck.cards.length == 0) {
 				self.destroy();
