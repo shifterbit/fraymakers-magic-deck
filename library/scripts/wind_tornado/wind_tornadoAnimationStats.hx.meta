@@ -1,0 +1,13 @@
+{
+  "export": true,
+  "guid": "e5088d28-5861-48f3-8541-cd976beb9592",
+  "id": "wind_tornadoAnimationStats",
+  "language": "hscript",
+  "pluginMetadata": {
+  },
+  "plugins": [
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

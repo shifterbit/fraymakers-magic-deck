@@ -16,6 +16,9 @@
       "projectileCreator": [
         {
           "name": "fireball"
+        },
+        {
+          "name": "wind_tornado"
         }
       ],
       "version": "0.1.0"

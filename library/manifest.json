@@ -47,6 +47,15 @@
       "hitboxStatsId": "fireballHitboxStats",
       "scriptId": "fireballScript",
       "costumesId": "assisttemplateCostumes"
+    },
+    {
+      "id": "wind_tornado",
+      "type": "projectile",
+      "objectStatsId": "wind_tornadoStats",
+      "animationStatsId": "wind_tornadoAnimationStats",
+      "hitboxStatsId": "wind_tornadoHitboxStats",
+      "scriptId": "wind_tornadoScript",
+      "costumesId": "assisttemplateCostumes"
     }
   ]
 }

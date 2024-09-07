@@ -1,0 +1,18 @@
+{
+  "export": true,
+  "guid": "7d5952ce-83c6-46f0-887d-5ccbbb2a492c",
+  "id": "wind_tornadoScript",
+  "language": "hscript",
+  "pluginMetadata": {
+    "com.fraymakers.FraymakersMetadata": {
+      "objectType": "PROJECTILE",
+      "version": "0.3.0"
+    }
+  },
+  "plugins": [
+    "com.fraymakers.FraymakersMetadata"
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

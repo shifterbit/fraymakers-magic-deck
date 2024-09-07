@@ -128,15 +128,33 @@ function castFireball() {
 	var res = self.getResource().getContent("fireball");
 	var proj = match.createProjectile(res, self.getOwner());
 }
+
+function castWhirlwind() {
+	var res = self.getResource().getContent("wind_tornado");
+	var proj = match.createProjectile(res, self.getOwner());
+
+}
+
+function rangeCondition(lo: int, hi: int) {
+	return function (card) {
+		if (card >= lo && card <= hi) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+}
 function alwaysTrue(card) {
 	return true;
 }
-var fireball = createSpell(castFireball, alwaysTrue);
+var fireball = createSpell(castFireball, rangeCondition(0,4));
+var wind_tornado = createSpell(castWhirlwind, rangeCondition(5,9));
 
 
 // Runs on object init
 function initialize() {
-	initializeDeckWithSpells(deck, 3, [fireball]);
+	initializeDeckWithSpells(deck, 3, [fireball, wind_tornado]);
 	Engine.log("Initializing");
 	var capacity = deck.capacity;
 	Engine.log(capacity);

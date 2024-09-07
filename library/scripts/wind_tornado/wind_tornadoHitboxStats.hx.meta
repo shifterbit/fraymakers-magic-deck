@@ -1,0 +1,13 @@
+{
+  "export": true,
+  "guid": "22b1ff40-58c2-4718-bdb8-0798950d46e1",
+  "id": "wind_tornadoHitboxStats",
+  "language": "hscript",
+  "pluginMetadata": {
+  },
+  "plugins": [
+  ],
+  "tags": [
+  ],
+  "version": 1
+}
