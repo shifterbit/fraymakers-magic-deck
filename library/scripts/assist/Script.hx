@@ -21,19 +21,17 @@ var deck = {
 var cardSprites: Array<Sprite> = [];
 var currCard: int = 0;
 
-function startCooldwon() {
+function beginCooldown() {
 	deck.cooldown = true;
-	Engine.log("STARTING COOLDOWN, Cooldown status is " + deck.cooldown);
 
 }
 function endCoolDown() {
-	Engine.log("ENDING COOLDOWN, Cooldown status is " + deck.cooldown);
 	deck.cooldown = false;
-
 }
 
-function startCooldownTimer() {
-	self.addTimer(60, 1, endCoolDown, { persistent: true });
+function startCooldownTimer(time: int) {
+	beginCooldown();
+	self.addTimer(time, 1, endCoolDown, { persistent: true });
 
 }
 
@@ -46,10 +44,11 @@ function keepAssistBarAtZero(event) {
 	zeroAssist();
 }
 
-function createSpell(spellFn, predicateFn) {
+function createSpell(spellFn, predicateFn, cooldownTime: int) {
 	return {
 		cast: spellFn,
-		predicate: predicateFn
+		predicate: predicateFn,
+		cooldownTime: cooldownTime
 	};
 
 }
@@ -57,6 +56,8 @@ function createSpell(spellFn, predicateFn) {
 function trySpell(spell, score) {
 	if (spell.predicate(score)) {
 		spell.cast();
+		var cooldownTime: int = spell.cooldownTime;
+		startCooldownTimer(cooldownTime);
 		return true;
 	} else {
 		return false;
@@ -88,8 +89,7 @@ function addCard(value: int) {
 		sprite.currentFrame = card + 2;
 		currCard += 1;
 		deck.usable = deck.cards.length == deck.capacity;
-		startCooldwon();
-		startCooldownTimer();
+		startCooldownTimer(60);
 
 	}
 }
@@ -97,10 +97,7 @@ function addCard(value: int) {
 function initializeDeckWithSpells(deck, capacity: int, spells) {
 	var spellset = [];
 	for (spell in spells) {
-		Engine.log(spell);
 		spellset.push(spell);
-
-
 	}
 	deck.spells = spellset;
 	deck.capacity = capacity;
@@ -108,14 +105,9 @@ function initializeDeckWithSpells(deck, capacity: int, spells) {
 }
 
 
-
-
 function drawSpell() {
-	Engine.log(deck);
 	if (deck.cards.length > 0 && !deck.cooldown) {
 		deck.cooldown = true;
-		startCooldwon();
-		startCooldownTimer();
 		var card = deck.cards.pop();
 		var sprite: CustomGameObject = cardSprites.pop();
 		sprite.dispose();
@@ -126,12 +118,12 @@ function drawSpell() {
 
 function castFireball() {
 	var res = self.getResource().getContent("fireball");
-	var proj = match.createProjectile(res, self.getOwner());
+	match.createProjectile(res, self.getOwner());
 }
 
 function castWhirlwind() {
 	var res = self.getResource().getContent("wind_tornado");
-	var proj = match.createProjectile(res, self.getOwner());
+	match.createProjectile(res, self.getOwner());
 
 }
 
@@ -145,24 +137,19 @@ function rangeCondition(lo: int, hi: int) {
 	}
 
 }
-function alwaysTrue(card) {
-	return true;
-}
-var fireball = createSpell(castFireball, rangeCondition(0,4));
-var wind_tornado = createSpell(castWhirlwind, rangeCondition(5,9));
+
+var fireball = createSpell(castFireball, rangeCondition(0,4), 60);
+var wind_tornado = createSpell(castWhirlwind, rangeCondition(5,9), 120);
 
 
 // Runs on object init
 function initialize() {
 	initializeDeckWithSpells(deck, 3, [fireball, wind_tornado]);
-	Engine.log("Initializing");
 	var capacity = deck.capacity;
-	Engine.log(capacity);
 	Engine.forCount(capacity, function (idx: int) {
 		var card = Sprite.create(self.getResource().getContent("cards"));
 		cardSprites.push(card);
 		return true;
-
 	}, []);
 
 	Engine.forEach(cardSprites, function (sprite: Sprite, idx: int) {
@@ -171,7 +158,6 @@ function initialize() {
 		sprite.scaleY = 0.75;
 		sprite.x = sprite.x + (40 * idx);
 		sprite.y = sprite.y - 8;
-		Engine.log(self.getOwner().getDamageCounterContainer().children);
 		return true;
 	}, []);
 
@@ -193,12 +179,10 @@ function initialize() {
 
 function update() {
 	self.getOwner().setAssistCharge(0);
-
 	if (deck.usable) {
 		var owner: Character = self.getOwner();
 		self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
 		if (owner.getHeldControls().ACTION && !deck.cooldown) {
-			Engine.log(deck);
 			drawSpell();
 			if (deck.cards.length == 0) {
 				self.destroy();

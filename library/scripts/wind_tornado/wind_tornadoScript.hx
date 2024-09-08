@@ -10,8 +10,6 @@ var originalOwner = null;
 
 function initialize() {
 	self.addEventListener(GameObjectEvent.HIT_DEALT, onHit, { persistent: true });
-	Engine.log("Initialized WIND TORNADO");
-
 	self.setCostumeIndex(self.getOwner().getCostumeIndex());
 
 	// Set up horizontal reflection
