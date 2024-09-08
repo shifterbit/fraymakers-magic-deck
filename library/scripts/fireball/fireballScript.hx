@@ -8,7 +8,6 @@ var life = self.makeInt(60 * 15);
 var multiplier = 1;
 
 function initialize() {
-	// self.addEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit, { persistent: true });
 	self.addEventListener(GameObjectEvent.HIT_DEALT, onHit, { persistent: true });
 
 	self.setCostumeIndex(self.getRootOwner().getCostumeIndex());
@@ -27,29 +26,22 @@ function initialize() {
 }
 
 function onGroundHit(event) {
-	self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
-
-	// self.toState(PState.DESTROYING);
 }
 
 function onHit(event) {
-	self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
 	if (life.get() > 60) {
 		life.set(60);
 	}
-
-	// self.toState(PState.DESTROYING);
 }
 
 function update() {
-	Engine.log("current life " + life.get());
+	self.getOwner().setAssistCharge(0);
 
 	if (self.inState(PState.ACTIVE)) {
 		life.dec();
 		if (life.get() <= 0) {
-			//self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 			self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
 			self.destroy();
 		}
@@ -60,6 +52,5 @@ function update() {
 }
 
 function onTeardown() {
-	//	self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
 }

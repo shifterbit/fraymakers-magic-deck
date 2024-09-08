@@ -26,5 +26,6 @@
 	aerialHipXOffset: 0,
 	aerialHipYOffset: 0,
 	aerialFootPosition: 0,
+	ghost: true,
 }
 

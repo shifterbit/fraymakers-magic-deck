@@ -5,7 +5,6 @@ var Y_SPEED = -1; // Y Speed of water
 
 // Instance vars
 var life = self.makeInt(60 * 5);
-var baseLife = 60 * 5;
 var originalOwner = null;
 
 function initialize() {
@@ -33,20 +32,21 @@ function onHit(event) {
 	if (life.get() > 160) {
 		life.set(160);
 	}
-
-	// self.toState(PState.DESTROYING);
 }
 
 function turnAround() {
 	self.setYSpeed(-X_SPEED);
 	X_SPEED = -X_SPEED;
-
 }
 
 
 function update() {
-	var newSpeed = -1 + -1.05*((baseLife - life.get())/baseLife);
-	self.setYSpeed(newSpeed);
+	self.getOwner().setAssistCharge(0);
+	var speedIncrease = 2/life.get();
+	var baseSpeed = Math.abs(self.getYSpeed());
+	var speedMultiplier = (baseSpeed + speedIncrease)/baseSpeed;
+	self.setYSpeed(self.getYSpeed() * speedMultiplier);
+
 
 	
 	if (self.inState(PState.ACTIVE)) {
