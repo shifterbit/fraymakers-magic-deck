@@ -22,14 +22,13 @@ var deck = {
 
 
 
-
 var cardSprites: Array<Sprite> = [];
 var currCard: Int = 0;
 
 /**
  * @callback PredicateFunction
- * @property {number}
- * @return {bool}
+ * @param {number}
+ * @returns {bool}
  */
 
 
@@ -47,9 +46,9 @@ var currCard: Int = 0;
 
 /** 
  * Creates a spell
- * @param {SpellFunction} spellFn
- * @param {PredicateFunction} predicateFn
- * @param {Int} cooldownTIme
+ * @param {SpellFunction} spellFn The function that casts the spell.
+ * @param {PredicateFunction} predicateFn The function that checks if a spell is currently castable, takes an `Int` as input and returns a `bool`
+ * @param {Int} cooldownTIme cooldown time, in frames.
  * @returns {Spell}
  */
 function createSpell(spellFn, predicateFn, cooldownTime: Int) {
@@ -92,7 +91,6 @@ function rangeCondition(lo: Int, hi: Int) {
 			return false;
 		}
 	}
-
 }
 
 
