@@ -22,7 +22,8 @@ var deck = {
 
 
 
-var cardSprites: Array<Sprite> = [];
+var cardSprites: Array<any> = [];
+var outlineSprites: Array<Sprite> = [];
 var currCard: Int = 0;
 
 /**
@@ -57,6 +58,45 @@ function createSpell(spellFn, predicateFn, cooldownTime: Int) {
 		predicate: predicateFn,
 		cooldownTime: cooldownTime
 	};
+
+}
+
+/** 
+ * Creates a spell
+ * @param {Sprite} sprite
+ * @param {callback} cooldownFilterFn
+ */
+function createSpriteWithCooldownFilter(sprite: Sprite, cooldownFilterFn) {
+	return {
+		sprite: sprite,
+		filter: cooldownFilterFn(),
+		filterFn: cooldownFilterFn,
+		filterApplied: false,
+	}
+}
+
+function applyCooldownFilter(spriteObj) {
+	var sprite: Sprite = spriteObj.sprite;
+	var filter: HsbcColorFilter = spriteObj.filter;
+	sprite.addFilter(filter);
+	spriteObj.filterApplied = true;
+}
+
+function removeCooldownFilter(spriteObj) {
+	var sprite: Sprite = spriteObj.sprite;
+	var filter: HsbcColorFilter = spriteObj.filter;
+	sprite.removeFilter(filter);
+	spriteObj.filter = spriteObj.filterFn();
+	spriteObj.filterApplied = false;
+
+}
+
+
+function newCoolDownFilter() {
+	var filter: HsbcColorFilter = new HsbcColorFilter();
+	filter.brightness = -0.2;
+	filter.saturation = -0.2;
+	return filter;
 
 }
 
@@ -106,6 +146,14 @@ function contains(arr: Array<any>, item: any) {
 var fireball = createSpell(castFireball, rangeCondition(0, 4), 60);
 var wind_tornado = createSpell(castWhirlwind, rangeCondition(5, 9), 120);
 
+function resizeAndRepositionCard(card: Sprite, idx: Int) {
+	card.scaleX = 0.75;
+	card.scaleY = 0.75;
+	card.x = card.x + (40 * idx);
+	card.y = card.y - 8;
+
+
+}
 
 // Runs on object init
 function initialize() {
@@ -113,16 +161,20 @@ function initialize() {
 	var capacity = deck.capacity;
 	Engine.forCount(capacity, function (idx: Int) {
 		var card = Sprite.create(self.getResource().getContent("cards"));
-		cardSprites.push(card);
+		var cardOutline = Sprite.create(self.getResource().getContent("cards"));
+		cardSprites.push(createSpriteWithCooldownFilter(card, newCoolDownFilter));
+		outlineSprites.push(cardOutline);
+
 		return true;
 	}, []);
 
-	Engine.forEach(cardSprites, function (sprite: Sprite, idx: Int) {
-		self.getOwner().getDamageCounterContainer().addChildAt(sprite, idx);
-		sprite.scaleX = 0.75;
-		sprite.scaleY = 0.75;
-		sprite.x = sprite.x + (40 * idx);
-		sprite.y = sprite.y - 8;
+	Engine.forCount(cardSprites.length, function (idx: Int) {
+		var sprite = cardSprites[idx].sprite;
+		var outline = outlineSprites[idx];
+		self.getOwner().getDamageCounterContainer().addChild(sprite);
+		self.getOwner().getDamageCounterContainer().addChild(outline);
+		resizeAndRepositionCard(sprite, idx);
+		resizeAndRepositionCard(outline, idx);
 		return true;
 	}, []);
 
@@ -156,11 +208,20 @@ function update() {
 			"crouch_loop", "crouch_in", "crouch_out",
 			"dash", "airdash_land"
 		];
+
+
+
 		self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
 		if (owner.getHeldControls().ACTION && !deck.cooldown && contains(actionable_animations, owner.getAnimation())) {
 			drawSpell();
 			if (deck.cards.length == 0) {
+				for (i in outlineSprites) {
+					i.dispose();
+
+				}
+
 				self.destroy();
+
 			}
 		}
 	}
@@ -176,6 +237,9 @@ function onTeardown() {
  */
 function beginCooldown() {
 	deck.cooldown = true;
+	for (spriteObj in cardSprites) {
+		applyCooldownFilter(spriteObj);
+	};
 
 }
 
@@ -184,6 +248,9 @@ function beginCooldown() {
  */
 function endCoolDown() {
 	deck.cooldown = false;
+	for (spriteObj in cardSprites) {
+		removeCooldownFilter(spriteObj);
+	};
 }
 
 /** 
@@ -262,7 +329,7 @@ function addCard(value: Int) {
 	var card = value % 10;
 	if (deck.cards.length < deck.capacity) {
 		deck.cards.push(card);
-		var sprite: Sprite = cardSprites[currCard];
+		var sprite: Sprite = cardSprites[currCard].sprite;
 		sprite.currentFrame = card + 2;
 		currCard += 1;
 		deck.usable = deck.cards.length == deck.capacity;
@@ -295,8 +362,9 @@ function drawSpell() {
 		deck.cooldown = true;
 		var card = deck.cards.pop();
 		var sprite: CustomGameObject = cardSprites.pop();
-		sprite.dispose();
+		sprite.sprite.dispose();
 		currCard -= 1;
 		castFirstAvailaleSpell(card);
 	}
 }
+
