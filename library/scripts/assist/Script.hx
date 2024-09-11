@@ -13,18 +13,25 @@ var SPAWN_X_DISTANCE = 0; // How far in front of player to spawn
 var SPAWN_HEIGHT = 0; // How high up from player to spawn
 
 
-var deck = match.createCustomGameObject(self.getResource().getContent("deck"), self).exports;
+
+/**
+ * @type {Object} Deck
+ * @property {boolean} active
+ * @property {boolean} cooldown
+ * @property {number[]} cards
+ * @property {number} capacity
+ * @property {function} drawSpell  
+ * @property {function} empty
+ * @property {function} castable
+ * @property {function} createSpell
+ * @property {function} initializeDeck
+ * @property {function} newCardEvent
+
+ * 
+ */
+var deck: object = match.createCustomGameObject(self.getResource().getContent("deck"), self).exports;
 
 
-// Just a helper function to check if an array contains something
-function contains(arr: Array<any>, item: any) {
-    for (i in arr) {
-        if (i == item) {
-            return true;
-        }
-    }
-    return false;
-}
 
 /**
  * @type {SpellFunction}
@@ -61,35 +68,13 @@ function rangeCondition(lo: Int, hi: Int) {
 
 
 
-var fireball = deck.createSpell(castFireball, rangeCondition(0,4), 60);
+var fireball = deck.createSpell(castFireball, rangeCondition(0, 4), 60);
 var wind_tornado = deck.createSpell(castWhirlwind, rangeCondition(5, 9), 120);
 
 
 // Runs on object init
 function initialize() {
-	deck.initializeDeck(3, [fireball, wind_tornado]);
-	var capacity = deck.capacity;
-	Engine.forCount(capacity, function (idx: Int) {
-		var card = Sprite.create(self.getResource().getContent("cards"));
-		var cardOutline = Sprite.create(self.getResource().getContent("cards"));
-		deck.cardSprites.push(deck.createSpriteWithCooldownFilter(card, deck.newCoolDownFilter));
-		deck.outlineSprites.push(cardOutline);
-
-		return true;
-	}, []);
-
-	Engine.forCount(deck.cardSprites.length, function (idx: Int) {
-		var sprite = deck.cardSprites[idx].sprite;
-		var outline = deck.outlineSprites[idx];
-		self.getOwner().getDamageCounterContainer().addChild(sprite);
-		self.getOwner().getDamageCounterContainer().addChild(outline);
-		deck.resizeAndRepositionCard(sprite, idx);
-		deck.resizeAndRepositionCard(outline, idx);
-		return true;
-	}, []);
-
-
-
+	deck.initializeDeck(3, [fireball, wind_tornado], "cards");
 	self.getOwner().addEventListener(GameObjectEvent.HIT_DEALT, deck.addCardEvent, { persistent: true });
 	// Face the same direction as the user
 	if (self.getOwner().isFacingLeft()) {
@@ -103,33 +88,16 @@ function initialize() {
 	Common.startFadeIn();
 }
 
-
 function update() {
 	self.getOwner().setAssistCharge(0);
-	if (deck.usable) {
-		var owner: Character = self.getOwner();
-		var actionable_animations = [
-			"parry_success",
-			"stand", "stand_turn",
-			"walk", "walk_in", "walk_out", "walk_loop",
-			"run", "run_turn", "skid",
-			"jump_squat", "jump_in", "jump_out", "jump_midair", "jump_loop",
-			"fall_loop", "fall_in", "fall_out",
-			"crouch_loop", "crouch_in", "crouch_out",
-			"dash", "airdash_land"
-		];
-
-
+	if (deck.active) {
 
 		self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, deck.addCardEvent);
-		if (owner.getHeldControls().ACTION && !deck.cooldown && contains(actionable_animations, owner.getAnimation())) {
+
+		if (self.getOwner().getHeldControls().ACTION && deck.castable()) {
 			deck.drawSpell();
-			if (deck.cards.length == 0) {
-				for (i in deck.outlineSprites) {
-					i.dispose();
-
-				}
-
+			if (deck.empty()) {
+				deck.cleanup();
 				self.destroy();
 
 			}
