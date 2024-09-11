@@ -32,6 +32,11 @@
       }
     },
     {
+      "id": "deck",
+      "type": "customGameObject",
+      "scriptId": "deckScript"
+    },
+    {
       "id": "assisttemplateProjectile",
       "type": "projectile",
       "objectStatsId": "assisttemplateProjectileObjectStats",

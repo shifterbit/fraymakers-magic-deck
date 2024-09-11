@@ -1,0 +1,18 @@
+{
+  "export": true,
+  "guid": "cf101cca-1c5f-474e-afd0-7af15c9f350c",
+  "id": "deckScript",
+  "language": "",
+  "pluginMetadata": {
+    "com.fraymakers.FraymakersMetadata": {
+      "objectType": "CUSTOM_GAME_OBJECT",
+      "version": "0.3.0"
+    }
+  },
+  "plugins": [
+    "com.fraymakers.FraymakersMetadata"
+  ],
+  "tags": [
+  ],
+  "version": 1
+}
