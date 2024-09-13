@@ -1,28 +1,28 @@
 
-var cardSprites: Array<any> = [];
-var outlineSprites: Array<Sprite> = [];
-var currCard: Int = 0;
+var cardSprites: ApiVarArray = self.makeArray([]);
+var outlineSprites: ApiVarArray = self.makeArray([]);
+var garbage: ApiVarArray = self.makeArray([]);
+var active: ApiVarBool = self.makeBool(false);
+var cooldown: ApiVarBool = self.makeBool(false);
+var cards: ApiVarArray = self.makeArray([]);
+var deckCapacity: ApiVarInt = self.makeInt(0);
+var deckSpells: ApiVarArray = self.makeArray([]);
+var currCard: ApiVarInt = self.makeInt(0);
+
 self.exports = {
-    active: false,
-    cooldown: false,
-    cards: [],
-    capacity: 0,
-    spells: [],
-    cardSprites: cardSprites,
-    outlineSprites: outlineSprites,
-    currCard: currCard
+    active: active,
 };
 
 var actionable_animations = [
-			"parry_success",
-			"stand", "stand_turn",
-			"walk", "walk_in", "walk_out", "walk_loop",
-			"run", "run_turn", "skid",
-			"jump_squat", "jump_in", "jump_out", "jump_midair", "jump_loop",
-			"fall_loop", "fall_in", "fall_out",
-			"crouch_loop", "crouch_in", "crouch_out",
-			"dash", "airdash_land"
-		];
+    "parry_success",
+    "stand", "stand_turn",
+    "walk", "walk_in", "walk_out", "walk_loop",
+    "run", "run_turn", "skid",
+    "jump_squat", "jump_in", "jump_out", "jump_midair", "jump_loop",
+    "fall_loop", "fall_in", "fall_out",
+    "crouch_loop", "crouch_in", "crouch_out",
+    "dash", "airdash_land"
+];
 
 /**
  * @callback PredicateFunction
@@ -114,21 +114,22 @@ function newCoolDownFilter() {
  * Puts the deck in cooldown mode.
  */
 function beginCooldown() {
-    self.exports.cooldown = true;
-    for (spriteObj in cardSprites) {
+    cooldown.set(true);
+    for (spriteObj in cardSprites.get()) {
         applyCooldownFilter(spriteObj);
     };
-
+    removeAllHighlights();
 }
 
 /** 
  * Puts the deck out of cooldown mode.
  */
 function endCoolDown() {
-    self.exports.cooldown = false;
-    for (spriteObj in cardSprites) {
+    cooldown.set(false);
+    for (spriteObj in cardSprites.get()) {
         removeCooldownFilter(spriteObj);
     };
+    highlightCurrentCard();
 }
 
 /** 
@@ -179,8 +180,9 @@ function trySpell(spell, score) {
  * @param {Int} card The card value, usually derived from damage.
  */
 function castFirstAvailaleSpell(card: Int) {
-    for (spell in self.exports.spells) {
-        casted = trySpell(spell, card);
+    for (spell in deckSpells.get()) {
+        Engine.log("Trying spell " + spell);
+        var casted = trySpell(spell, card);
         if (casted) {
             return;
         };
@@ -192,7 +194,8 @@ function castFirstAvailaleSpell(card: Int) {
  * @param {GameObjectEvent} event The event passed in by the event listener, typically `HIT_DEALT`
  */
 function addCardEvent(event: GameObjectEvent) {
-    if (!self.exports.cooldown) {
+    if (!cooldown.get()) {
+        Engine.log("COOLDOWN");
         var hitboxStats: HitboxStats = event.data.hitboxStats;
         var damage = hitboxStats.damage;
         addCard(damage);
@@ -205,12 +208,12 @@ function addCardEvent(event: GameObjectEvent) {
  */
 function addCard(value: Int) {
     var card = value % 10;
-    if (self.exports.cards.length < self.exports.capacity) {
-        self.exports.cards.push(card);
-        var sprite: Sprite = self.exports.cardSprites[self.exports.currCard].sprite;
-        sprite.currentFrame = card + 2;
-        self.exports.currCard += 1;
-        self.exports.usable = self.exports.cards.length == self.exports.capacity;
+    if (apiArrLength(cards) < deckCapacity.get()) {
+        apiArrPush(cards, card);
+        var sprite: Sprite = apiArrGetIdx(cardSprites, currCard.get()).sprite;
+        sprite.currentFrame = card + 3;
+        incrementCard();
+        self.exports.active.set(apiArrLength(cards) == deckCapacity.get());
         startCooldownTimer(60);
 
     }
@@ -227,40 +230,50 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId) {
     for (spell in spells) {
         spellset.push(spell);
     }
-    self.exports.spells = spellset;
-    self.exports.capacity = capacity;
+    deckSpells.set(spellset);
+    deckCapacity.set(capacity);
 
     Engine.forCount(capacity, function (idx: Int) {
         var card = Sprite.create(self.getResource().getContent(spriteId));
         var cardOutline = Sprite.create(self.getResource().getContent(spriteId));
-        self.exports.cardSprites.push(createSpriteWithCooldownFilter(card, newCoolDownFilter));
-        self.exports.outlineSprites.push(cardOutline);
+
+        // We need to keep track of outlines later as we need to dispose of them at some point
+        apiArrPush(garbage, cardOutline);
+
+        apiArrPush(cardSprites, createSpriteWithCooldownFilter(card, newCoolDownFilter));
+
+        apiArrPush(outlineSprites, cardOutline);
 
         return true;
     }, []);
 
-    Engine.forCount(self.exports.cardSprites.length, function (idx: Int) {
-        var sprite = self.exports.cardSprites[idx].sprite;
-        var outline = self.exports.outlineSprites[idx];
-    
+    Engine.forCount(apiArrLength(cardSprites), function (idx: Int) {
+        var sprite = apiArrGetIdx(cardSprites, idx).sprite;
+        var outline = apiArrGetIdx(outlineSprites, idx);
+
         self.getRootOwner().getDamageCounterContainer().addChild(sprite);
         self.getRootOwner().getDamageCounterContainer().addChild(outline);
         resizeAndRepositionCard(sprite, idx);
         resizeAndRepositionCard(outline, idx);
         return true;
     }, []);
+
+    highlightCurrentCard();
 }
 
 /** 
  * Draws a card from the top of the deck and uses it to cast a spell
  */
 function drawSpell() {
-    if (self.exports.cards.length > 0 && !self.exports.cooldown) {
-        self.exports.cooldown = true;
-        var card = self.exports.cards.pop();
-        var sprite = self.exports.cardSprites.pop();
+    if (apiArrLength(cards) > 0 && !cooldown.get()) {
+        cooldown.set(true);
+        var card = apiArrPop(cards);
+        var sprite = apiArrPop(cardSprites);
+        var outline: Sprite = apiArrPop(outlineSprites);
+        outline.currentFrame = 1;
         sprite.sprite.dispose();
-        currCard -= 1;
+        decrementCard();
+        Engine.log("Casting spell");
         castFirstAvailaleSpell(card);
     }
 }
@@ -268,32 +281,89 @@ function drawSpell() {
 
 // Just a helper function to check if an array contains something
 function contains(arr: Array<any>, item: any) {
-	for (i in arr) {
-		if (i == item) {
-			return true;
-		}
-	}
-	return false;
+    for (i in arr) {
+        if (i == item) {
+            return true;
+        }
+    }
+    return false;
 }
 
 
+function apiArrPush(arr: ApiVarArray, val: any) {
+    var temp = arr.get();
+    temp.push(val);
+    arr.set(temp);
+}
+
+function apiArrLength(arr: ApiVarArray) {
+    return arr.get().length;
+}
+
+function apiArrPop(arr: ApiVarArray) {
+    var temp = arr.get();
+    var popped = temp.pop();
+    arr.set(temp);
+    return popped;
+}
+
+function apiArrGetIdx(arr: ApiVarArray, idx: Int) {
+    var temp = arr.get();
+    var item = temp[idx];
+    return item;
+}
+
+
+function apiArrSetIdx(arr: ApiVarArray, idx: Int, item: any) {
+    var temp = arr.get();
+    temp[idx] = item;
+    arr.set(temp);
+}
+
 function castable() {
-    return !self.exports.cooldown && contains(actionable_animations, owner.getAnimation())
+    var res = !cooldown.get() && contains(actionable_animations, self.getRootOwner().getAnimation()) == true;
+    return res;
+}
+
+function incrementCard() {
+    var curr = currCard.get();
+    if (curr < deckCapacity.get() - 1) {
+        currCard.set(curr + 1);
+    }
+}
+
+function decrementCard() {
+    var curr = currCard.get();
+    if (curr > 0) {
+        currCard.set(curr - 1);
+    }
 }
 
 
 function empty() {
-    return self.exports.cards.length == 0;
+    return apiArrLength(cards) == 0;
 }
 
 
 function cleanup() {
-    for (i in self.exports.outlineSprites) {
+    for (i in garbage.get()) {
         i.dispose();
     }
-    for (i in self.exports.cardSprites) {
-        i.dispose();
+    self.destroy();
+}
+
+function removeAllHighlights() {
+    Engine.forEach(outlineSprites.get(), function (outline: Sprite, _idx: Int) {
+        outline.currentFrame = 1;
+    }, []);
+}
+function highlightCurrentCard() {
+
+    var currOutline: Sprite = apiArrGetIdx(outlineSprites, currCard.get());
+    if (currOutline != null) {
+        currOutline.currentFrame = 2;
     }
+
 }
 
 self.exports.drawSpell = drawSpell;

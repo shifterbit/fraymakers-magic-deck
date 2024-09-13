@@ -29,7 +29,10 @@ var SPAWN_HEIGHT = 0; // How high up from player to spawn
 
  * 
  */
-var deck: object = match.createCustomGameObject(self.getResource().getContent("deck"), self).exports;
+
+var deckResource = match.createCustomGameObject(self.getResource().getContent("deck"), self);
+
+var deck: object = deckResource.exports;
 
 
 
@@ -90,14 +93,12 @@ function initialize() {
 
 function update() {
 	self.getOwner().setAssistCharge(0);
-	if (deck.active) {
-
+	if (deck.active.get()) {
 		self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, deck.addCardEvent);
-
 		if (self.getOwner().getHeldControls().ACTION && deck.castable()) {
 			deck.drawSpell();
 			if (deck.empty()) {
-				deck.cleanup();
+				deck.cleanup();	
 				self.destroy();
 
 			}

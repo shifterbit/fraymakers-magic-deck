@@ -221,6 +221,16 @@
       "tweenType": "LINEAR",
       "tweened": false,
       "type": "IMAGE"
+    },
+    {
+      "$id": "1576670c-5f90-4eb1-8fc9-8b4814b68982",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "symbol": "78715603-d726-4409-9ed8-883785533cd6",
+      "tweenType": "LINEAR",
+      "tweened": false,
+      "type": "IMAGE"
     }
   ],
   "layers": [
@@ -263,7 +273,8 @@
         "cc6d6ca1-95ef-4f65-99a1-edcc812cf8cb",
         "72b86dc5-b6f7-4afa-8d94-7f41d6bbe2c4",
         "d840e23b-34cf-49c3-ad1c-26cfee1776c2",
-        "96133ed7-9379-4ded-aac8-a41c2f1c7e63"
+        "96133ed7-9379-4ded-aac8-a41c2f1c7e63",
+        "1576670c-5f90-4eb1-8fc9-8b4814b68982"
       ],
       "locked": false,
       "name": "Image 0",
@@ -539,6 +550,21 @@
       "$id": "345463dd-7bfd-49e3-baed-bf1f5922d6c5",
       "alpha": 1,
       "imageAsset": "8824d0a5-ec77-4b08-a83f-b01e4e2c3c86",
+      "pivotX": 32,
+      "pivotY": 32,
+      "pluginMetadata": {
+      },
+      "rotation": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "type": "IMAGE",
+      "x": -32,
+      "y": -64
+    },
+    {
+      "$id": "78715603-d726-4409-9ed8-883785533cd6",
+      "alpha": 1,
+      "imageAsset": "64637b5b-9d72-4607-86b2-b34784eaa198",
       "pivotX": 32,
       "pivotY": 32,
       "pluginMetadata": {
