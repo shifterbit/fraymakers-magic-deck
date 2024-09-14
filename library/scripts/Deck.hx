@@ -174,6 +174,7 @@ function startsplitCooldownTimer(duration: Int) {
         outline.currentFrame += 1;
         if (outline.currentFrame == 53) {
             cooldown.set(false);
+            highlightCurrentCard();
         }
     }
     self.addTimer(intervalsize, 52, coolDownFn, { persistent: true });
