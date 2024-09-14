@@ -1,6 +1,7 @@
 
 var cardSprites: ApiVarArray = self.makeArray([]);
 var outlineSprites: ApiVarArray = self.makeArray([]);
+var cooldownSprites: ApiVarArray = self.makeArray([]);
 var garbage: ApiVarArray = self.makeArray([]);
 var active: ApiVarBool = self.makeBool(false);
 var cooldown: ApiVarBool = self.makeBool(false);
@@ -60,17 +61,22 @@ function createSpell(spellFn, predicateFn, cooldownTime: Int) {
 
 }
 
-/** 
- * Creates a spell
- * @param {Sprite} sprite
- * @param {callback} cooldownFilterFn
- */
+
 function createSpriteWithCooldownFilter(sprite: Sprite, cooldownFilterFn) {
     return {
         sprite: sprite,
         filter: cooldownFilterFn(),
         filterFn: cooldownFilterFn,
         filterApplied: false,
+    }
+}
+
+function createSpriteWithShader(sprite: Sprite, shaderFn) {
+    return {
+        sprite: sprite,
+        shader: shaderFn(),
+        shaderFn: shaderFn,
+        shaderApplied: false,
     }
 }
 
@@ -92,6 +98,13 @@ function applyCooldownFilter(spriteObj) {
     spriteObj.filterApplied = true;
 }
 
+function applyShader(spriteObj) {
+    var sprite: Sprite = spriteObj.sprite;
+    var shader: RgbaColorShader = spriteObj.shader;
+    sprite.addShader(shader);
+    spriteObj.shaderApplied = true;
+}
+
 function removeCooldownFilter(spriteObj) {
     var sprite: Sprite = spriteObj.sprite;
     var filter: HsbcColorFilter = spriteObj.filter;
@@ -107,7 +120,16 @@ function newCoolDownFilter() {
     filter.brightness = -0.2;
     filter.saturation = -0.2;
     return filter;
+}
 
+function loadingShader() {
+    var shader: RgbaColorShader = new RgbaColorShader();
+    shader.color = 0x000000;
+    shader.alphaMultiplier = 1 / 20;
+    shader.redMultiplier = 1 / 3;
+    shader.greenMultiplier = 1 / 2;
+    shader.blueMultiplier = 1;
+    return shader;
 }
 
 /** 
@@ -141,6 +163,23 @@ function startCooldownTimer(duration: Int) {
     self.addTimer(duration, 1, endCoolDown, { persistent: true });
 
 }
+
+function startsplitCooldownTimer(duration: Int) {
+    var currPos = currCard.get();
+    var currOverlay = apiArrGetIdx(cooldownSprites, currPos);
+    var outline: Sprite = currOverlay.sprite;
+    outline.currentFrame = 1;
+    var intervalsize = duration / 52;
+    var coolDownFn = function () {
+        outline.currentFrame += 1;
+        if (outline.currentFrame == 53) {
+            cooldown.set(false);
+        }
+    }
+    self.addTimer(intervalsize, 52, coolDownFn, { persistent: true });
+
+
+}
 /** 
  * Sets the assist charge to 0.
  */
@@ -168,7 +207,7 @@ function trySpell(spell, score) {
     if (spell.predicate(score)) {
         spell.cast();
         var cooldownTime: Int = spell.cooldownTime;
-        startCooldownTimer(cooldownTime);
+        startsplitCooldownTimer(cooldownTime);
         return true;
     } else {
         return false;
@@ -181,7 +220,6 @@ function trySpell(spell, score) {
  */
 function castFirstAvailaleSpell(card: Int) {
     for (spell in deckSpells.get()) {
-        Engine.log("Trying spell " + spell);
         var casted = trySpell(spell, card);
         if (casted) {
             return;
@@ -189,13 +227,13 @@ function castFirstAvailaleSpell(card: Int) {
     }
 }
 
+
 /** 
  * Calls `addCard(value)` if the deck isn't in a cooldown state
  * @param {GameObjectEvent} event The event passed in by the event listener, typically `HIT_DEALT`
  */
 function addCardEvent(event: GameObjectEvent) {
     if (!cooldown.get()) {
-        Engine.log("COOLDOWN");
         var hitboxStats: HitboxStats = event.data.hitboxStats;
         var damage = hitboxStats.damage;
         addCard(damage);
@@ -225,7 +263,7 @@ function addCard(value: Int) {
  * @param {Int} capacity The maximum number of cards
  * @param {Object[]} spells  The list of spells you want accessible
  */
-function initializeDeck(capacity: Int, spells: Array<any>, spriteId) {
+function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOverlayId) {
     var spellset = [];
     for (spell in spells) {
         spellset.push(spell);
@@ -236,25 +274,35 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId) {
     Engine.forCount(capacity, function (idx: Int) {
         var card = Sprite.create(self.getResource().getContent(spriteId));
         var cardOutline = Sprite.create(self.getResource().getContent(spriteId));
+        var cooldownOutline = Sprite.create(self.getResource().getContent(cooldownOverlayId));
+        cooldownOutline.currentFrame = 53;
+        cooldownOutline.alpha = 0.95;
 
         // We need to keep track of outlines later as we need to dispose of them at some point
         apiArrPush(garbage, cardOutline);
+        apiArrPush(garbage, cooldownOutline);
+
 
         apiArrPush(cardSprites, createSpriteWithCooldownFilter(card, newCoolDownFilter));
-
         apiArrPush(outlineSprites, cardOutline);
-
+        apiArrPush(cooldownSprites, createSpriteWithShader(cooldownOutline, loadingShader));
         return true;
     }, []);
 
-    Engine.forCount(apiArrLength(cardSprites), function (idx: Int) {
+    Engine.forCount(capacity, function (idx: Int) {
         var sprite = apiArrGetIdx(cardSprites, idx).sprite;
         var outline = apiArrGetIdx(outlineSprites, idx);
-
+        var cooldownObj = apiArrGetIdx(cooldownSprites, idx);
+        var cooldownSprite: Sprite = cooldownObj.sprite;
+        applyShader(cooldownObj);
         self.getRootOwner().getDamageCounterContainer().addChild(sprite);
         self.getRootOwner().getDamageCounterContainer().addChild(outline);
+        self.getRootOwner().getDamageCounterContainer().addChild(cooldownSprite);
+
         resizeAndRepositionCard(sprite, idx);
         resizeAndRepositionCard(outline, idx);
+        resizeAndRepositionCard(cooldownSprite, idx);
+
         return true;
     }, []);
 
@@ -273,7 +321,6 @@ function drawSpell() {
         outline.currentFrame = 1;
         sprite.sprite.dispose();
         decrementCard();
-        Engine.log("Casting spell");
         castFirstAvailaleSpell(card);
     }
 }
@@ -346,19 +393,21 @@ function empty() {
 
 
 function cleanup() {
-    for (i in garbage.get()) {
+    var dispoables = garbage.get();
+    for (i in dispoables) {
         i.dispose();
     }
     self.destroy();
 }
 
 function removeAllHighlights() {
-    Engine.forEach(outlineSprites.get(), function (outline: Sprite, _idx: Int) {
+    var outlines = outlineSprites.get();
+    Engine.forEach(outlines, function (outline: Sprite, _idx: Int) {
         outline.currentFrame = 1;
     }, []);
 }
 function highlightCurrentCard() {
-
+    removeAllHighlights();
     var currOutline: Sprite = apiArrGetIdx(outlineSprites, currCard.get());
     if (currOutline != null) {
         currOutline.currentFrame = 2;

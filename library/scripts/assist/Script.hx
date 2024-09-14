@@ -13,7 +13,6 @@ var SPAWN_X_DISTANCE = 0; // How far in front of player to spawn
 var SPAWN_HEIGHT = 0; // How high up from player to spawn
 
 
-
 /**
  * @type {Object} Deck
  * @property {boolean} active
@@ -77,7 +76,7 @@ var wind_tornado = deck.createSpell(castWhirlwind, rangeCondition(5, 9), 120);
 
 // Runs on object init
 function initialize() {
-	deck.initializeDeck(3, [fireball, wind_tornado], "cards");
+	deck.initializeDeck(3, [fireball, wind_tornado], "cards", "cards_cooldown");
 	self.getOwner().addEventListener(GameObjectEvent.HIT_DEALT, deck.addCardEvent, { persistent: true });
 	// Face the same direction as the user
 	if (self.getOwner().isFacingLeft()) {
@@ -89,6 +88,7 @@ function initialize() {
 
 	// Add fade in effect
 	Common.startFadeIn();
+
 }
 
 function update() {
