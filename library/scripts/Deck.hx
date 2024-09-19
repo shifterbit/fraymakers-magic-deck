@@ -2,6 +2,7 @@
 var cardSprites: ApiVarArray = self.makeArray([]);
 var outlineSprites: ApiVarArray = self.makeArray([]);
 var cooldownSprites: ApiVarArray = self.makeArray([]);
+var iconSprites: ApiVarArray = self.makeArray([]);
 var garbage: ApiVarArray = self.makeArray([]);
 var active: ApiVarBool = self.makeBool(false);
 var cooldown: ApiVarBool = self.makeBool(false);
@@ -9,10 +10,9 @@ var cards: ApiVarArray = self.makeArray([]);
 var deckCapacity: ApiVarInt = self.makeInt(0);
 var deckSpells: ApiVarArray = self.makeArray([]);
 var currCard: ApiVarInt = self.makeInt(0);
+var iconEventListeners: ApiVarArray = self.makeArray([]);
+var owner: Character = self.getRootOwner();
 
-self.exports = {
-    active: active,
-};
 
 var actionable_animations = [
     "parry_success",
@@ -52,11 +52,12 @@ var actionable_animations = [
  * @param {Int} cooldownTIme cooldown time, in frames.
  * @returns {Spell}
  */
-function createSpell(spellFn, predicateFn, cooldownTime: Int) {
+function createSpell(spellFn, predicateFn, cooldownTime: Int, icon) {
     return {
         cast: spellFn,
         predicate: predicateFn,
-        cooldownTime: cooldownTime
+        cooldownTime: cooldownTime,
+        icon: icon,
     };
 
 }
@@ -82,11 +83,11 @@ function createSpriteWithShader(sprite: Sprite, shaderFn) {
 
 
 
-function resizeAndRepositionCard(card: Sprite, idx: Int) {
-    card.scaleX = 0.75;
-    card.scaleY = 0.75;
-    card.x = card.x + (40 * idx);
-    card.y = card.y - 8;
+function resizeAndRepositionCard(card: Sprite, idx: Int, scale, spacing, xOffset: Int, yOffset: Int) {
+    card.scaleX = scale;
+    card.scaleY = scale;
+    card.x = card.x + (spacing * idx) + xOffset;
+    card.y = card.y - 8 - yOffset;
 }
 
 
@@ -141,6 +142,7 @@ function beginCooldown() {
         applyCooldownFilter(spriteObj);
     };
     removeAllHighlights();
+    owner.removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
 }
 
 /** 
@@ -152,6 +154,8 @@ function endCoolDown() {
         removeCooldownFilter(spriteObj);
     };
     highlightCurrentCard();
+    owner.addEventListener(GameObjectEvent.HIT_DEALT, addCardEvent, { persistent: true });
+
 }
 
 /** 
@@ -209,9 +213,9 @@ function trySpell(spell, score) {
         spell.cast();
         var cooldownTime: Int = spell.cooldownTime;
         startsplitCooldownTimer(cooldownTime);
-        return true;
+        return spell;
     } else {
-        return false;
+        return null;
     }
 }
 
@@ -222,12 +226,29 @@ function trySpell(spell, score) {
 function castFirstAvailaleSpell(card: Int) {
     for (spell in deckSpells.get()) {
         var casted = trySpell(spell, card);
-        if (casted) {
+        if (casted != null) {
             return;
         };
     }
 }
 
+function getSpellIcon(card: Int) {
+    for (spell in deckSpells.get()) {
+        if (spell.predicate(apiArrGetIdx(cards, card))) {
+            return spell.icon;
+        }
+    }
+    return "default";
+}
+function iconRefresher(currentCard: Int) {
+    return function () {
+        var icon: Sprite = apiArrGetIdx(iconSprites, currentCard);
+        if (icon != null) {
+            icon.currentAnimation = getSpellIcon(currentCard);
+        }
+    }
+
+}
 
 /** 
  * Calls `addCard(value)` if the deck isn't in a cooldown state
@@ -237,9 +258,18 @@ function addCardEvent(event: GameObjectEvent) {
     if (!cooldown.get()) {
         var hitboxStats: HitboxStats = event.data.hitboxStats;
         var damage = hitboxStats.damage;
+        var currentLength = apiArrLength(cards);
+        var currCard: Int = currCard.get();
+        self.addTimer(1, -1, iconRefresher(currCard),
+            {
+                persistent: true,
+                condition: (function () { return (currentLength <= (apiArrLength(cards) - 1)); })
+            });
+
         addCard(damage);
     }
 }
+
 
 /** 
  * Adds a card to the top of the deck if the deck isn't full
@@ -250,21 +280,29 @@ function addCard(value: Int) {
     if (apiArrLength(cards) < deckCapacity.get()) {
         apiArrPush(cards, card);
         var sprite: Sprite = apiArrGetIdx(cardSprites, currCard.get()).sprite;
+        var icon: Sprite = apiArrGetIdx(iconSprites, currCard.get());
+        var icon_name = getSpellIcon(card);
+        icon.currentAnimation = icon_name;
         sprite.currentFrame = card + 3;
+
         incrementCard();
-        self.exports.active.set(apiArrLength(cards) == deckCapacity.get());
+        active.set(apiArrLength(cards) == deckCapacity.get());
         startCooldownTimer(60);
 
     }
 }
+
+
 
 /** 
  * Initializes the deck with the currently configured spells
  * @param {Object} deck The deck object
  * @param {Int} capacity The maximum number of cards
  * @param {Object[]} spells  The list of spells you want accessible
+ * @param {string} spriteId
+ * @param {string} cooldownOverlayId
  */
-function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOverlayId) {
+function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOverlayId, iconsId) {
     var spellset = [];
     for (spell in spells) {
         spellset.push(spell);
@@ -276,16 +314,26 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
         var card = Sprite.create(self.getResource().getContent(spriteId));
         var cardOutline = Sprite.create(self.getResource().getContent(spriteId));
         var cooldownOutline = Sprite.create(self.getResource().getContent(cooldownOverlayId));
+        // var iconResource = self.getResource().getContent("card_icons");
+        // var iconSprite: Sprite = Sprite.create(iconResource);
+        var iconSprite = Sprite.create(self.getResource().getContent(iconsId));
+
+        iconSprite.currentAnimation = "";
+
         cooldownOutline.currentFrame = 53;
         cooldownOutline.alpha = 0.95;
 
         // We need to keep track of outlines later as we need to dispose of them at some point
         apiArrPush(garbage, cardOutline);
         apiArrPush(garbage, cooldownOutline);
+        apiArrPush(garbage, iconSprite);
+
 
 
         apiArrPush(cardSprites, createSpriteWithCooldownFilter(card, newCoolDownFilter));
         apiArrPush(outlineSprites, cardOutline);
+        apiArrPush(iconSprites, iconSprite);
+
         apiArrPush(cooldownSprites, createSpriteWithShader(cooldownOutline, loadingShader));
         return true;
     }, []);
@@ -295,19 +343,25 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
         var outline = apiArrGetIdx(outlineSprites, idx);
         var cooldownObj = apiArrGetIdx(cooldownSprites, idx);
         var cooldownSprite: Sprite = cooldownObj.sprite;
-        applyShader(cooldownObj);
-        self.getRootOwner().getDamageCounterContainer().addChild(sprite);
-        self.getRootOwner().getDamageCounterContainer().addChild(outline);
-        self.getRootOwner().getDamageCounterContainer().addChild(cooldownSprite);
+        var iconSprite = apiArrGetIdx(iconSprites, idx);
 
-        resizeAndRepositionCard(sprite, idx);
-        resizeAndRepositionCard(outline, idx);
-        resizeAndRepositionCard(cooldownSprite, idx);
+        applyShader(cooldownObj);
+        owner.getDamageCounterContainer().addChild(sprite);
+        owner.getDamageCounterContainer().addChild(outline);
+        owner.getDamageCounterContainer().addChild(cooldownSprite);
+        owner.getDamageCounterContainer().addChild(iconSprite);
+
+        resizeAndRepositionCard(iconSprite, idx, 0.50, 45, 16, 0);
+        resizeAndRepositionCard(sprite, idx, 0.75, 45, 0, 0);
+        resizeAndRepositionCard(outline, idx, 0.75, 45, 0, 0);
+        resizeAndRepositionCard(cooldownSprite, idx, 0.75, 45, 0, 0);
 
         return true;
     }, []);
 
     highlightCurrentCard();
+    owner.addEventListener(GameObjectEvent.HIT_DEALT, addCardEvent, { persistent: true });
+
 }
 
 /** 
@@ -319,7 +373,9 @@ function drawSpell() {
         var card = apiArrPop(cards);
         var sprite = apiArrPop(cardSprites);
         var outline: Sprite = apiArrPop(outlineSprites);
+        var iconSprite = apiArrPop(iconSprites);
         outline.currentFrame = 1;
+        iconSprite.dispose();
         sprite.sprite.dispose();
         decrementCard();
         castFirstAvailaleSpell(card);
@@ -369,7 +425,7 @@ function apiArrSetIdx(arr: ApiVarArray, idx: Int, item: any) {
 }
 
 function castable() {
-    var res = !cooldown.get() && contains(actionable_animations, self.getRootOwner().getAnimation()) == true;
+    var res = !cooldown.get() && contains(actionable_animations, owner.getAnimation()) == true;
     return res;
 }
 
@@ -416,6 +472,22 @@ function highlightCurrentCard() {
 
 }
 
+function update() {
+    owner.setAssistCharge(0);
+    if (active.get()) {
+        owner.removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
+        if (owner.getHeldControls().ACTION && castable()) {
+            drawSpell();
+            if (empty()) {
+                cleanup();
+                self.dispose();
+                
+
+            }
+        }
+    }
+
+}
 self.exports.drawSpell = drawSpell;
 self.exports.resizeAndRepositionCard = resizeAndRepositionCard;
 self.exports.createSpell = createSpell;
@@ -424,11 +496,8 @@ self.exports.addCardEvent = addCardEvent;
 self.exports.cleanup = cleanup;
 self.exports.empty = empty;
 self.exports.castable = castable;
-
-
-
+self.exports.update = deckUpdate;
 
 
 function initialize() { }
 function onTeardown() { }
-function update() { }

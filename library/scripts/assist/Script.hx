@@ -70,14 +70,22 @@ function rangeCondition(lo: Int, hi: Int) {
 
 
 
-var fireball = deck.createSpell(castFireball, rangeCondition(0, 4), 60);
-var wind_tornado = deck.createSpell(castWhirlwind, rangeCondition(5, 9), 120);
+var fireball = deck.createSpell(castFireball, rangeCondition(0, 4), 60, "fireball");
+var wind_tornado = deck.createSpell(castWhirlwind, rangeCondition(5, 9), 180, "tornado");
 
-
+/** 
+ * @type function
+ * @description Initializes the deck with the currently configured spells
+ * @param {Object} deck The deck object
+ * @param {Int} capacity The maximum number of cards
+ * @param {Object[]} spells  The list of spells you want accessible
+ * @param {string} spriteId
+ * @param {string} cooldownOverlayId
+ */
+var initializeDeck = deck.initializeDeck;
 // Runs on object init
 function initialize() {
-	deck.initializeDeck(3, [fireball, wind_tornado], "cards", "cards_cooldown");
-	self.getOwner().addEventListener(GameObjectEvent.HIT_DEALT, deck.addCardEvent, { persistent: true });
+	deck.initializeDeck(3, [fireball, wind_tornado], "cards", "cards_cooldown", "card_icons");
 	// Face the same direction as the user
 	if (self.getOwner().isFacingLeft()) {
 		self.faceLeft();
@@ -92,18 +100,6 @@ function initialize() {
 }
 
 function update() {
-	self.getOwner().setAssistCharge(0);
-	if (deck.active.get()) {
-		self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, deck.addCardEvent);
-		if (self.getOwner().getHeldControls().ACTION && deck.castable()) {
-			deck.drawSpell();
-			if (deck.empty()) {
-				deck.cleanup();	
-				self.destroy();
-
-			}
-		}
-	}
 
 }
 function onTeardown() {
