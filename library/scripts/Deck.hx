@@ -488,15 +488,10 @@ function update() {
     }
 
 }
-self.exports.drawSpell = drawSpell;
-self.exports.resizeAndRepositionCard = resizeAndRepositionCard;
+
 self.exports.createSpell = createSpell;
 self.exports.initializeDeck = initializeDeck;
-self.exports.addCardEvent = addCardEvent;
-self.exports.cleanup = cleanup;
-self.exports.empty = empty;
-self.exports.castable = castable;
-self.exports.update = deckUpdate;
+
 
 
 function initialize() { }

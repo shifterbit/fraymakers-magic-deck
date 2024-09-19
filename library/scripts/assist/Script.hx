@@ -13,26 +13,16 @@ var SPAWN_X_DISTANCE = 0; // How far in front of player to spawn
 var SPAWN_HEIGHT = 0; // How high up from player to spawn
 
 
-/**
- * @type {Object} Deck
- * @property {boolean} active
- * @property {boolean} cooldown
- * @property {number[]} cards
- * @property {number} capacity
- * @property {function} drawSpell  
- * @property {function} empty
- * @property {function} castable
- * @property {function} createSpell
- * @property {function} initializeDeck
- * @property {function} newCardEvent
-
- * 
- */
 
 var deckResource = match.createCustomGameObject(self.getResource().getContent("deck"), self);
 
-var deck: object = deckResource.exports;
+/**
+ * @type {Object} Deck
 
+ * @property {function} createSpell
+ * @property {function} initializeDeck
+ */
+var deck: object = deckResource.exports;
 
 
 /**
