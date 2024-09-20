@@ -21,8 +21,7 @@ var distance = self.makeFloat(Math.POSITIVE_INFINITY);
 var owner: Character = self.getRootOwner();
 
 
-
-match.createVfx(new VfxStats({ spriteContent: self.getResource().getContent("ice"), animation: "vfx" }), self.getOwner());
+var vfx = self.makeObject(null);
 
 function setTarget() {
 	for (player in owner.getFoes()) {// player is any one of the owner's "foes". This will iterate through all of them.
@@ -75,9 +74,9 @@ function initialize() {
 	// Set up horizontal reflection
 	Common.enableReflectionListener({ mode: "X", replaceOwner: true });
 
-	self.setState(PState.ACTIVE);
 
-	Common.repositionToEntityEcb(self.getOwner(), self.flipX(128), -50);
+	Common.repositionToEntityEcb(self.getOwner(), self.flipX(64), -50);
+	self.setState(PState.ACTIVE);
 	self.addTimer(1, -1, function () {
 		self.setRotation(self.getRotation() + 4);
 	});
@@ -98,6 +97,10 @@ function onGroundHit(event) {
 }
 
 function onHit(event) {
+	if (vfx.get() == null) {
+		vfx.set(match.createVfx(new VfxStats({ spriteContent: self.getResource().getContent("ice"), animation: "vfx" }), self));
+
+	}
 	if (life.get() > 60) {
 		life.set(60);
 	}
