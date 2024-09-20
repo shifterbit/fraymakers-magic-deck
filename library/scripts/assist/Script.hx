@@ -52,6 +52,39 @@ function castIce() {
 
 }
 
+function kaiokenMode() {
+	var outerGlow = new GlowFilter();
+	outerGlow.color = 0xFF0000;
+	var middleGlow = new GlowFilter();
+	middleGlow.color = 0xF2566B;
+	var innerGlow = new GlowFilter();
+	innerGlow.color = 0xFFFFFF;
+
+
+	self.getOwner().addFilter(innerGlow);
+	self.getOwner().addFilter(middleGlow);
+	self.getOwner().addFilter(outerGlow);
+	var doubleDamage = function (event: GameObjectEvent) {
+		var baseDamage = event.data.hitboxStats.damage;
+		event.data.hitboxStats.damage = baseDamage * 2;
+		self.getOwner().setAssistCharge(0);
+	};
+	self.getOwner().addEventListener(GameObjectEvent.HITBOX_CONNECTED, doubleDamage, { persistent: true });
+	self.addTimer(10, 60, function () {
+		var owner: Character = self.getRootOwner();
+		owner.addDamage(1);
+	});
+
+	self.addTimer(60 * 10, 1, function () {
+		self.getOwner().removeEventListener(GameObjectEvent.HITBOX_CONNECTED, doubleDamage);
+		self.getOwner().removeFilter(outerGlow);
+		self.getOwner().removeFilter(middleGlow);
+		self.getOwner().removeFilter(innerGlow);
+	}, { persistent: true });
+
+
+}
+
 
 /** 
  * @type {SpellFunction}
@@ -95,10 +128,23 @@ function groundRangeCondition(lo: Int, hi: Int) {
 }
 
 
-var fireball = deck.createSpell(castFireball, airRangeCondition(0, 4), 60, "fireball");
-var ice = deck.createSpell(castIce, groundRangeCondition(0, 4), 120, "ice");
-var wind_tornado = deck.createSpell(castWhirlwind, airRangeCondition(5, 9), 180, "tornado");
-var earthSpike = deck.createSpell(castEarth, groundRangeCondition(5, 9), 120, "earth");
+function damageRangeCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) {
+	var predicate = rangeCondition(lo, hi);
+
+	return function (card) {
+		var damage = self.getRootOwner().getDamage();
+		var withinDamageRange = damage >= minDamage && damage <= maxDamage;
+		return withinDamageRange && predicate(card);
+	}
+}
+
+
+
+var fireball = deck.createSpell(castFireball, airRangeCondition(4, 6), 60, "fireball");
+var ice = deck.createSpell(castIce, groundRangeCondition(4, 6), 120, "ice");
+var wind_tornado = deck.createSpell(castWhirlwind, airRangeCondition(7, 9), 180, "tornado");
+var earthSpike = deck.createSpell(castEarth, groundRangeCondition(7, 9), 120, "earth");
+var kaioken = deck.createSpell(kaiokenMode, damageRangeCondition(0, 100, 0, 3), 900, "fireball");
 
 
 
@@ -114,7 +160,7 @@ var earthSpike = deck.createSpell(castEarth, groundRangeCondition(5, 9), 120, "e
 var initializeDeck = deck.initializeDeck;
 // Runs on object init
 function initialize() {
-	deck.initializeDeck(3, [fireball, wind_tornado, earthSpike, ice], "cards", "cards_cooldown", "card_icons");
+	deck.initializeDeck(3, [fireball, wind_tornado, earthSpike, ice, kaioken], "cards", "cards_cooldown", "card_icons");
 	// Face the same direction as the user
 	if (self.getOwner().isFacingLeft()) {
 		self.faceLeft();

@@ -232,8 +232,8 @@ function castFirstAvailaleSpell(card: Int) {
     }
 }
 
-function getSpellIcon(card: Int) {
-    var cardVal = apiArrGetIdx(cards, card);
+function getSpellIcon(cardIdx: Int) {
+    var cardVal = apiArrGetIdx(cards, cardIdx);
     var spells = deckSpells.get();
     for (spell in spells) {
         if (spell.predicate(cardVal)) {
@@ -296,6 +296,7 @@ function addCard(value: Int) {
 
 
 
+
 /** 
  * Initializes the deck with the currently configured spells
  * @param {Object} deck The deck object
@@ -305,6 +306,8 @@ function addCard(value: Int) {
  * @param {string} cooldownOverlayId
  */
 function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOverlayId, iconsId) {
+
+
     var spellset = [];
     for (spell in spells) {
         spellset.push(spell);
@@ -370,7 +373,7 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
  * Draws a card from the top of the deck and uses it to cast a spell
  */
 function drawSpell() {
-    var currSpell = getSpellIcon(apiArrGetIdx(cards, apiArrLength(cards) - 1));
+ 
     if (apiArrLength(cards) > 0 && !cooldown.get()) {
         cooldown.set(true);
         var card = apiArrPop(cards);
@@ -433,16 +436,14 @@ function castable() {
 }
 
 function incrementCard() {
-    var curr = currCard.get();
-    if (curr < deckCapacity.get() - 1) {
-        currCard.set(curr + 1);
+    if (currCard.get() < deckCapacity.get() - 1) {
+        currCard.inc();
     }
 }
 
 function decrementCard() {
-    var curr = currCard.get();
-    if (curr > 0) {
-        currCard.set(curr - 1);
+    if (currCard.get() > 0) {
+        currCard.dec();
     }
 }
 
