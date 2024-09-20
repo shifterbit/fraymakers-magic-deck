@@ -1,0 +1,18 @@
+{
+  "export": true,
+  "guid": "092b89bb-3786-43b3-85d9-c81a99ca5002",
+  "id": "iceScript",
+  "language": "hscript",
+  "pluginMetadata": {
+    "com.fraymakers.FraymakersMetadata": {
+      "objectType": "PROJECTILE",
+      "version": "0.3.0"
+    }
+  },
+  "plugins": [
+    "com.fraymakers.FraymakersMetadata"
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

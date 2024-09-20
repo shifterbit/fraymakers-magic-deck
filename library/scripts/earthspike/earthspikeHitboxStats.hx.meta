@@ -1,0 +1,13 @@
+{
+  "export": true,
+  "guid": "a34e5513-03fa-4e93-b15c-96c616f6cfab",
+  "id": "earthspikeHitboxStats",
+  "language": "hscript",
+  "pluginMetadata": {
+  },
+  "plugins": [
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

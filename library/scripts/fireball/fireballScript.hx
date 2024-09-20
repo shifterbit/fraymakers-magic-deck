@@ -2,12 +2,17 @@
 
 var X_SPEED = 7; // X speed of water
 var Y_SPEED = 0; // Y Speed of water
+var SPAWN_X_DISTANCE = 64;
+var SPAWN_Y_DISTANCE = 0;
 
 // Instance vars
 var life = self.makeInt(60 * 15);
 var multiplier = 1;
 
 function initialize() {
+	self.setScaleX(0.75);
+	self.setScaleY(0.75);
+
 	self.addEventListener(GameObjectEvent.HIT_DEALT, onHit, { persistent: true });
 
 	self.setCostumeIndex(self.getRootOwner().getCostumeIndex());
@@ -15,12 +20,15 @@ function initialize() {
 
 	// Set up horizontal reflection
 	Common.enableReflectionListener({ mode: "X", replaceOwner: true });
-	self.setX(self.getOwner().getX());
-	self.setY(self.getOwner().getY());
+	Common.repositionToEntityEcb(self.getOwner(), self.flipX(SPAWN_X_DISTANCE), -SPAWN_Y_DISTANCE);
+	// self.setX(self.getOwner().getX());
+	// self.setY(self.getOwner().getY());
 
 	self.setState(PState.ACTIVE);
 	self.setXSpeed(X_SPEED);
 	self.setYSpeed(Y_SPEED);
+
+
 
 
 }

@@ -1,0 +1,13 @@
+{
+  "export": true,
+  "guid": "f0be0e27-2f39-4d98-941f-4ad82bc88b9a",
+  "id": "iceHitboxStats",
+  "language": "hscript",
+  "pluginMetadata": {
+  },
+  "plugins": [
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

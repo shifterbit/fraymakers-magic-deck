@@ -443,7 +443,7 @@
         "db2c9fde-1451-479b-9931-e82bf7f492b1",
         "79efbe2d-68fa-4999-a036-1401e8084e3d"
       ],
-      "locked": false,
+      "locked": true,
       "name": "hitbox0",
       "pluginMetadata": {
         "com.fraymakers.FraymakersMetadata": {
@@ -468,7 +468,7 @@
         "0d4a3063-6b3e-43a6-90e9-b2ed6001fe4b"
       ],
       "language": "hscript",
-      "locked": false,
+      "locked": true,
       "name": "Frame Script Layer",
       "pluginMetadata": {
       },

@@ -42,6 +42,26 @@ function castWhirlwind() {
 
 }
 
+
+/** 
+ * @type {SpellFunction}
+ */
+function castIce() {
+	var res = self.getResource().getContent("ice");
+	match.createProjectile(res, self.getOwner());
+
+}
+
+
+/** 
+ * @type {SpellFunction}
+ */
+function castEarth() {
+	var res = self.getResource().getContent("earthspike");
+	match.createProjectile(res, self.getOwner());
+
+}
+
 /**
  * Creates a range condition
  * @param {Int} lo lower bound
@@ -49,7 +69,7 @@ function castWhirlwind() {
  * @returns {PredicateFunction} predicate
  */
 function rangeCondition(lo: Int, hi: Int) {
-	return function (card) {
+	return function (card: Int) {
 		if (card >= lo && card <= hi) {
 			return true;
 		} else {
@@ -58,10 +78,29 @@ function rangeCondition(lo: Int, hi: Int) {
 	}
 }
 
+function airRangeCondition(lo: Int, hi: Int) {
+	var predicate = rangeCondition(lo, hi);
+
+	return function (card) {
+		return !self.getRootOwner().isOnFloor() && predicate(card);
+	}
+}
+
+function groundRangeCondition(lo: Int, hi: Int) {
+	var predicate = rangeCondition(lo, hi);
+
+	return function (card) {
+		return self.getRootOwner().isOnFloor() && predicate(card);
+	}
+}
 
 
-var fireball = deck.createSpell(castFireball, rangeCondition(0, 4), 60, "fireball");
-var wind_tornado = deck.createSpell(castWhirlwind, rangeCondition(5, 9), 180, "tornado");
+var fireball = deck.createSpell(castFireball, airRangeCondition(0, 4), 60, "fireball");
+var ice = deck.createSpell(castIce, groundRangeCondition(0, 4), 120, "ice");
+var wind_tornado = deck.createSpell(castWhirlwind, airRangeCondition(5, 9), 180, "tornado");
+var earthSpike = deck.createSpell(castEarth, groundRangeCondition(5, 9), 120, "earth");
+
+
 
 /** 
  * @type function
@@ -75,7 +114,7 @@ var wind_tornado = deck.createSpell(castWhirlwind, rangeCondition(5, 9), 180, "t
 var initializeDeck = deck.initializeDeck;
 // Runs on object init
 function initialize() {
-	deck.initializeDeck(3, [fireball, wind_tornado], "cards", "cards_cooldown", "card_icons");
+	deck.initializeDeck(3, [fireball, wind_tornado, earthSpike, ice], "cards", "cards_cooldown", "card_icons");
 	// Face the same direction as the user
 	if (self.getOwner().isFacingLeft()) {
 		self.faceLeft();

@@ -233,8 +233,10 @@ function castFirstAvailaleSpell(card: Int) {
 }
 
 function getSpellIcon(card: Int) {
-    for (spell in deckSpells.get()) {
-        if (spell.predicate(apiArrGetIdx(cards, card))) {
+    var cardVal = apiArrGetIdx(cards, card);
+    var spells = deckSpells.get();
+    for (spell in spells) {
+        if (spell.predicate(cardVal)) {
             return spell.icon;
         }
     }
@@ -368,6 +370,7 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
  * Draws a card from the top of the deck and uses it to cast a spell
  */
 function drawSpell() {
+    var currSpell = getSpellIcon(apiArrGetIdx(cards, apiArrLength(cards) - 1));
     if (apiArrLength(cards) > 0 && !cooldown.get()) {
         cooldown.set(true);
         var card = apiArrPop(cards);
@@ -481,7 +484,7 @@ function update() {
             if (empty()) {
                 cleanup();
                 self.dispose();
-                
+
 
             }
         }

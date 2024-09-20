@@ -61,6 +61,24 @@
       "hitboxStatsId": "wind_tornadoHitboxStats",
       "scriptId": "wind_tornadoScript",
       "costumesId": "assisttemplateCostumes"
+    },
+    {
+      "id": "earthspike",
+      "type": "projectile",
+      "objectStatsId": "earthspikeStats",
+      "animationStatsId": "earthspikeAnimationStats",
+      "hitboxStatsId": "earthspikeHitboxStats",
+      "scriptId": "earthspikeScript",
+      "costumesId": "assisttemplateCostumes"
+    },
+    {
+      "id": "ice",
+      "type": "projectile",
+      "objectStatsId": "iceStats",
+      "animationStatsId": "iceAnimationStats",
+      "hitboxStatsId": "iceHitboxStats",
+      "scriptId": "iceScript",
+      "costumesId": "assisttemplateCostumes"
     }
   ]
 }

@@ -1,0 +1,18 @@
+{
+  "export": true,
+  "guid": "f599c8fb-0917-469b-ae4f-4a1e7fe01c90",
+  "id": "earthspikeScript",
+  "language": "hscript",
+  "pluginMetadata": {
+    "com.fraymakers.FraymakersMetadata": {
+      "objectType": "PROJECTILE",
+      "version": "0.3.0"
+    }
+  },
+  "plugins": [
+    "com.fraymakers.FraymakersMetadata"
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

@@ -2,6 +2,8 @@
 
 var X_SPEED = 0; // X speed of water
 var Y_SPEED = -1; // Y Speed of water
+var SPAWN_X_DISTANCE = 32 * 2.3;
+var SPAWN_Y_DISTANCE = 0;
 
 // Instance vars
 var life = self.makeInt(60 * 5);
@@ -13,6 +15,7 @@ function initialize() {
 
 	// Set up horizontal reflection
 	Common.enableReflectionListener({ mode: "X", replaceOwner: true });
+	Common.repositionToEntityEcb(self.getOwner(), self.flipX(SPAWN_X_DISTANCE), -SPAWN_Y_DISTANCE);
 
 	self.setState(PState.ACTIVE);
 
@@ -42,13 +45,13 @@ function turnAround() {
 
 function update() {
 	self.getOwner().setAssistCharge(0);
-	var speedIncrease = 2/life.get();
+	var speedIncrease = 2 / life.get();
 	var baseSpeed = Math.abs(self.getYSpeed());
-	var speedMultiplier = (baseSpeed + speedIncrease)/baseSpeed;
+	var speedMultiplier = (baseSpeed + speedIncrease) / baseSpeed;
 	self.setYSpeed(self.getYSpeed() * speedMultiplier);
 
 
-	
+
 	if (self.inState(PState.ACTIVE)) {
 		life.dec();
 		if (life.get() <= 0) {
