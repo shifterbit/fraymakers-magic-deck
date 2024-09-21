@@ -155,6 +155,8 @@ function endCoolDown() {
     };
     highlightCurrentCard();
     owner.addEventListener(GameObjectEvent.HIT_DEALT, addCardEvent, { persistent: true });
+    AudioClip.play(self.getResource().getContent("cooldownEndSound"));
+
 
 }
 
@@ -286,9 +288,9 @@ function addCard(value: Int) {
         var icon_name = getSpellIcon(card);
         icon.currentAnimation = icon_name;
         sprite.currentFrame = card + 3;
-
         incrementCard();
         active.set(apiArrLength(cards) == deckCapacity.get());
+
         startCooldownTimer(60);
 
     }

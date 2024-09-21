@@ -14,6 +14,7 @@ function initialize() {
 	self.setScaleY(0.75);
 
 	self.addEventListener(GameObjectEvent.HIT_DEALT, onHit, { persistent: true });
+	AudioClip.play(self.getResource().getContent("fireSound"));
 
 	self.setCostumeIndex(self.getRootOwner().getCostumeIndex());
 
@@ -39,6 +40,8 @@ function onGroundHit(event) {
 
 function onHit(event) {
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
+	AudioClip.play(self.getResource().getContent("fireSound"));
+
 	if (life.get() > 60) {
 		life.set(60);
 	}

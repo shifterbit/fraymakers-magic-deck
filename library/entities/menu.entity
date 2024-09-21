@@ -43,21 +43,21 @@
       "type": "IMAGE"
     },
     {
-      "$id": "5ef39529-fdff-42ef-813c-f56225f77966",
+      "$id": "f0241332-3db4-4953-960a-01225f886dae",
       "length": 1,
       "pluginMetadata": {
       },
-      "symbol": "27271413-1e97-4276-84f7-00c0c39ea620",
+      "symbol": "a30b82b6-1a1a-4b1a-a474-5d30b48eb9db",
       "tweenType": "LINEAR",
       "tweened": false,
       "type": "IMAGE"
     },
     {
-      "$id": "90c320c8-17f8-4bbf-9035-b03462e9c028",
+      "$id": "7f4c0537-8965-42d2-a7c9-42fa8d4dcbfb",
       "length": 1,
       "pluginMetadata": {
       },
-      "symbol": "269da352-2504-4665-b8ed-b0cf5e39d72c",
+      "symbol": "a6572e85-5825-4671-ae91-6598098c030d",
       "tweenType": "LINEAR",
       "tweened": false,
       "type": "IMAGE"
@@ -80,7 +80,7 @@
       "$id": "a15c4f39-47b7-4b9a-88a3-d510d6a56f9e",
       "hidden": false,
       "keyframes": [
-        "5ef39529-fdff-42ef-813c-f56225f77966"
+        "f0241332-3db4-4953-960a-01225f886dae"
       ],
       "locked": false,
       "name": "Image 0",
@@ -92,7 +92,7 @@
       "$id": "9a64325f-44dd-406e-877b-e8428f4981e9",
       "hidden": false,
       "keyframes": [
-        "90c320c8-17f8-4bbf-9035-b03462e9c028"
+        "7f4c0537-8965-42d2-a7c9-42fa8d4dcbfb"
       ],
       "locked": false,
       "name": "Image Layer",
@@ -124,16 +124,16 @@
       "pluginMetadata": {
       },
       "rotation": 0,
-      "scaleX": 1,
-      "scaleY": 1,
+      "scaleX": 1.44,
+      "scaleY": 0.9,
       "type": "IMAGE",
-      "x": -6,
-      "y": -4
+      "x": 12,
+      "y": -11
     },
     {
-      "$id": "27271413-1e97-4276-84f7-00c0c39ea620",
+      "$id": "a30b82b6-1a1a-4b1a-a474-5d30b48eb9db",
       "alpha": 1,
-      "imageAsset": "134a4646-b727-409c-a0f5-48e9a3367dc4",
+      "imageAsset": "022ba491-67ca-45e7-83aa-e26bc1509bbe",
       "pivotX": 0,
       "pivotY": 0,
       "pluginMetadata": {
@@ -142,23 +142,23 @@
       "scaleX": 1,
       "scaleY": 1,
       "type": "IMAGE",
-      "x": 0,
-      "y": 0
+      "x": -6,
+      "y": -4
     },
     {
-      "$id": "269da352-2504-4665-b8ed-b0cf5e39d72c",
+      "$id": "a6572e85-5825-4671-ae91-6598098c030d",
       "alpha": 1,
-      "imageAsset": "3de19e63-7852-45e1-b9ef-9db72bab4f9d",
-      "pivotX": 20.5,
-      "pivotY": 10.5,
+      "imageAsset": "022ba491-67ca-45e7-83aa-e26bc1509bbe",
+      "pivotX": 0,
+      "pivotY": 0,
       "pluginMetadata": {
       },
       "rotation": 0,
       "scaleX": 1,
       "scaleY": 1,
       "type": "IMAGE",
-      "x": 0,
-      "y": 0
+      "x": -1,
+      "y": -1
     }
   ],
   "tags": [

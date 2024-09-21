@@ -45,6 +45,10 @@ function turnAround() {
 
 function update() {
 	self.getOwner().setAssistCharge(0);
+	if (life.get() % 10 == 0) {
+		AudioClip.play(self.getResource().getContent("windSound"));
+
+	}
 	var speedIncrease = 2 / life.get();
 	var baseSpeed = Math.abs(self.getYSpeed());
 	var speedMultiplier = (baseSpeed + speedIncrease) / baseSpeed;

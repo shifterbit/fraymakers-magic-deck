@@ -31,6 +31,7 @@ var deck: object = deckResource.exports;
 function castFireball() {
 	var res = self.getResource().getContent("fireball");
 	match.createProjectile(res, self.getOwner());
+	AudioClip.play(self.getResource().getContent("blackMagicSound"));
 }
 
 /** 
@@ -39,6 +40,7 @@ function castFireball() {
 function castWhirlwind() {
 	var res = self.getResource().getContent("wind_tornado");
 	match.createProjectile(res, self.getOwner());
+	AudioClip.play(self.getResource().getContent("blackMagicSound"));
 
 }
 
@@ -49,6 +51,17 @@ function castWhirlwind() {
 function castIce() {
 	var res = self.getResource().getContent("ice");
 	match.createProjectile(res, self.getOwner());
+	AudioClip.play(self.getResource().getContent("blackMagicSound"));
+
+}
+/** 
+ * @type {SpellFunction}
+ */
+function castEarth() {
+	var res = self.getResource().getContent("earthspike");
+	match.createProjectile(res, self.getOwner());
+	AudioClip.play(self.getResource().getContent("blackMagicSound"));
+
 
 }
 
@@ -56,7 +69,7 @@ function kaiokenMode() {
 	var outerGlow = new GlowFilter();
 	outerGlow.color = 0xFF0000;
 	var middleGlow = new GlowFilter();
-	middleGlow.color = 0xF2566B;
+	middleGlow.color = 0xF95D74;
 	var innerGlow = new GlowFilter();
 	innerGlow.color = 0xFFFFFF;
 
@@ -72,7 +85,11 @@ function kaiokenMode() {
 	self.getOwner().addEventListener(GameObjectEvent.HITBOX_CONNECTED, doubleDamage, { persistent: true });
 	self.addTimer(10, 60, function () {
 		var owner: Character = self.getRootOwner();
-		owner.addDamage(1);
+		owner.addDamage(2);
+	});
+
+	self.addTimer(1, 60 * 10, function () {
+		self.getOwner().setAssistCharge(0);
 	});
 
 	self.addTimer(60 * 10, 1, function () {
@@ -81,19 +98,53 @@ function kaiokenMode() {
 		self.getOwner().removeFilter(middleGlow);
 		self.getOwner().removeFilter(innerGlow);
 	}, { persistent: true });
+	AudioClip.play(self.getResource().getContent("whiteMagicSound"));
+
+}
+
+function vamparismMode() {
+	var innerGlow = new GlowFilter();
+	innerGlow.color = 0xFFFFFF;
+	var middleGlow = new GlowFilter();
+	middleGlow.color = 0xD7BDE2;
+	var outerGlow = new GlowFilter();
+	outerGlow.color = 0x6c3483;
+	var bat: CustomGameObject = match.createCustomGameObject(self.getResource().getContent("bat"), self.getOwner());
+	bat.playAnimation("idle");
+	var owner: Character = self.getOwner();
+	bat.setX(self.getOwner().getX());
+
+
+	self.getOwner().addFilter(innerGlow);
+	self.getOwner().addFilter(middleGlow);
+	self.getOwner().addFilter(outerGlow);
+	var drain = function (event: GameObjectEvent) {
+		var baseDamage = event.data.hitboxStats.damage;
+		var foe = event.data.foe;
+		var foeAssistCharge = foe.getAssistContentStat("assistChargeValue");
+		if (foeAssistCharge >= 0 && foeAssistCharge != null) {
+			foe.setAssistCharge(foe.getAssistCharge() - ((baseDamage * 1000) / (1000 * foeAssistCharge)));
+		}
+		self.getOwner().addDamage(-baseDamage * 0.75);
+
+	};
+
+	self.addTimer(1, 60 * 10, function () {
+		self.getOwner().setAssistCharge(0);
+	});
+	self.getOwner().addEventListener(GameObjectEvent.HIT_DEALT, drain, { persistent: true });
+	self.addTimer(60 * 10, 1, function () {
+		self.getOwner().removeEventListener(GameObjectEvent.HIT_DEALT, drain);
+		bat.destroy();
+		self.getOwner().removeFilter(outerGlow);
+		self.getOwner().removeFilter(middleGlow);
+		self.getOwner().removeFilter(innerGlow);
+	}, { persistent: true });
+	AudioClip.play(self.getResource().getContent("whiteMagicSound"));
 
 
 }
 
-
-/** 
- * @type {SpellFunction}
- */
-function castEarth() {
-	var res = self.getResource().getContent("earthspike");
-	match.createProjectile(res, self.getOwner());
-
-}
 
 /**
  * Creates a range condition
@@ -144,7 +195,8 @@ var fireball = deck.createSpell(castFireball, airRangeCondition(4, 6), 60, "fire
 var ice = deck.createSpell(castIce, groundRangeCondition(4, 6), 120, "ice");
 var wind_tornado = deck.createSpell(castWhirlwind, airRangeCondition(7, 9), 180, "tornado");
 var earthSpike = deck.createSpell(castEarth, groundRangeCondition(7, 9), 120, "earth");
-var kaioken = deck.createSpell(kaiokenMode, damageRangeCondition(0, 100, 0, 3), 900, "fireball");
+var kaioken = deck.createSpell(kaiokenMode, damageRangeCondition(0, 80, 0, 3), 900, "rage");
+var vamparism = deck.createSpell(vamparismMode, damageRangeCondition(81, 999, 0, 3), 900, "vampire");
 
 
 
@@ -160,7 +212,7 @@ var kaioken = deck.createSpell(kaiokenMode, damageRangeCondition(0, 100, 0, 3), 
 var initializeDeck = deck.initializeDeck;
 // Runs on object init
 function initialize() {
-	deck.initializeDeck(3, [fireball, wind_tornado, earthSpike, ice, kaioken], "cards", "cards_cooldown", "card_icons");
+	deck.initializeDeck(3, [fireball, wind_tornado, earthSpike, ice, kaioken, vamparism], "cards", "cards_cooldown", "card_icons");
 	// Face the same direction as the user
 	if (self.getOwner().isFacingLeft()) {
 		self.faceLeft();

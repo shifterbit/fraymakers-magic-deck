@@ -67,7 +67,7 @@ function initialize() {
 	self.setScaleX(0.4);
 	self.setScaleY(0.4);
 	self.addEventListener(GameObjectEvent.HIT_DEALT, onHit, { persistent: true });
-	self.addEventListener(GameObjectEvent.REFLECTED, function (event: GameObjectEvent) { setTarget(); }, {persistent: true});
+	self.addEventListener(GameObjectEvent.REFLECTED, function (event: GameObjectEvent) { setTarget(); }, { persistent: true });
 
 	self.setCostumeIndex(self.getOwner().getCostumeIndex());
 
@@ -97,6 +97,8 @@ function onGroundHit(event) {
 }
 
 function onHit(event) {
+	AudioClip.play(self.getResource().getContent("iceSound"));
+
 	if (vfx.get() == null) {
 		vfx.set(match.createVfx(new VfxStats({ spriteContent: self.getResource().getContent("ice"), animation: "vfx" }), self));
 

@@ -1,0 +1,13 @@
+{
+  "export": true,
+  "guid": "b65bc165-4ab9-4072-b07a-6d6964c7a0da",
+  "id": "batAnimationStats",
+  "language": "hscript",
+  "pluginMetadata": {
+  },
+  "plugins": [
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

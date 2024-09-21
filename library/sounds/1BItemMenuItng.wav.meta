@@ -1,0 +1,12 @@
+{
+  "export": true,
+  "guid": "649da7b2-445f-4288-b2e1-c52d49cf2ee1",
+  "id": "cooldownEndSound",
+  "pluginMetadata": {
+  },
+  "plugins": [
+  ],
+  "tags": [
+  ],
+  "version": 1
+}

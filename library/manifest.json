@@ -37,12 +37,12 @@
       "scriptId": "deckScript"
     },
     {
-      "id": "assisttemplateProjectile",
-      "type": "projectile",
-      "objectStatsId": "assisttemplateProjectileObjectStats",
-      "animationStatsId": "assisttemplateProjectileAnimationStats",
-      "hitboxStatsId": "assisttemplateProjectileHitboxStats",
-      "scriptId": "assisttemplateProjectileScript"
+      "id": "bat",
+      "type": "customGameObject",
+      "scriptId": "batScript",
+      "objectStatsId": "batStats",
+      "animationStatsId": "batAnimationStats"
+      
     },
     {
       "id": "fireball",

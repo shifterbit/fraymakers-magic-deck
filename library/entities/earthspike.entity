@@ -4,6 +4,7 @@
       "$id": "f2f08e94-cecd-4a06-afd8-3d13fb79309b",
       "layers": [
         "705c70d6-1a0d-491d-acf0-8b878adcfcdd",
+        "a0d0c1f3-c289-457e-90df-eeb50d9f8312",
         "50af446a-728a-484e-a742-7556a33ac5eb"
       ],
       "name": "projectileSpawn",
@@ -394,6 +395,22 @@
       "tweenType": "LINEAR",
       "tweened": false,
       "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "1074e38d-eb25-4ca7-ac1f-14d568cb6707",
+      "code": "",
+      "length": 15,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
+    },
+    {
+      "$id": "eda3e109-ecb1-44e5-8651-aa8c47e7af0b",
+      "code": "\tAudioClip.play(self.getResource().getContent(\"earthSound\"));\n",
+      "length": 1,
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
     }
   ],
   "layers": [
@@ -551,6 +568,20 @@
         }
       },
       "type": "COLLISION_BOX"
+    },
+    {
+      "$id": "a0d0c1f3-c289-457e-90df-eeb50d9f8312",
+      "hidden": false,
+      "keyframes": [
+        "1074e38d-eb25-4ca7-ac1f-14d568cb6707",
+        "eda3e109-ecb1-44e5-8651-aa8c47e7af0b"
+      ],
+      "language": "hscript",
+      "locked": false,
+      "name": "Frame Script Layer",
+      "pluginMetadata": {
+      },
+      "type": "FRAME_SCRIPT"
     }
   ],
   "paletteMap": {
