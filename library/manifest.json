@@ -25,7 +25,7 @@
             "animation": "assist_css",
             "info": {
               "game": "Fraymakers",
-              "description": "My first assist character."
+              "description": "To cast spells, press the assist button after the deck has been filled."
             }
           }
         }

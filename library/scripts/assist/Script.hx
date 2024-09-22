@@ -65,6 +65,7 @@ function castEarth() {
 
 }
 
+
 function kaiokenMode() {
 	var outerGlow = new GlowFilter();
 	outerGlow.color = 0xFF0000;

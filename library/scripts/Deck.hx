@@ -87,7 +87,13 @@ function resizeAndRepositionCard(card: Sprite, idx: Int, scale, spacing, xOffset
     card.scaleX = scale;
     card.scaleY = scale;
     card.x = card.x + (spacing * idx) + xOffset;
-    card.y = card.y - 8 - yOffset;
+    var totalYOffset = yOffset + 32;
+    var hudPosition = GraphicsSettings.damageHudPosition;
+    if (hudPosition == "top") {
+        card.y = card.y + 4 * (totalYOffset);
+    } else {
+        card.y = card.y - (totalYOffset);
+    }
 }
 
 
@@ -358,10 +364,12 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
         owner.getDamageCounterContainer().addChild(cooldownSprite);
         owner.getDamageCounterContainer().addChild(iconSprite);
 
-        resizeAndRepositionCard(iconSprite, idx, 0.50, 45, 16, 0);
-        resizeAndRepositionCard(sprite, idx, 0.75, 45, 0, 0);
-        resizeAndRepositionCard(outline, idx, 0.75, 45, 0, 0);
-        resizeAndRepositionCard(cooldownSprite, idx, 0.75, 45, 0, 0);
+        var baseXOffset = 64;
+
+        resizeAndRepositionCard(sprite, idx, 0.75, 45, baseXOffset, 0);
+        resizeAndRepositionCard(outline, idx, 0.75, 45, baseXOffset, 0);
+        resizeAndRepositionCard(cooldownSprite, idx, 0.75, 45, baseXOffset, 0);
+        resizeAndRepositionCard(iconSprite, idx, 0.50, 45, 16 + baseXOffset, 0);
 
         return true;
     }, []);
@@ -375,8 +383,13 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
  * Draws a card from the top of the deck and uses it to cast a spell
  */
 function drawSpell() {
- 
+
     if (apiArrLength(cards) > 0 && !cooldown.get()) {
+        if (!owner.isOnFloor()) {
+            owner.playAnimation("assist_call_air");
+        } else {
+            owner.playAnimation("assist_call");
+        }
         cooldown.set(true);
         var card = apiArrPop(cards);
         var sprite = apiArrPop(cardSprites);
