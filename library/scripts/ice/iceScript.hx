@@ -109,6 +109,8 @@ function onHit(event) {
 }
 
 function update() {
+	self.getOwner().setAssistCharge(0);
+
 	aim();
 	move(accel);
 	if (life.get() % 20 == 0) {

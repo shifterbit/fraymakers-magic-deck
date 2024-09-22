@@ -16,7 +16,7 @@ var owner: Character = self.getRootOwner();
 
 var actionable_animations = [
     "parry_success",
-    "stand", "stand_turn",
+    "stand", "stand_turn", "idle",
     "walk", "walk_in", "walk_out", "walk_loop",
     "run", "run_turn", "skid",
     "jump_squat", "jump_in", "jump_out", "jump_midair", "jump_loop",
@@ -83,16 +83,16 @@ function createSpriteWithShader(sprite: Sprite, shaderFn) {
 
 
 
-function resizeAndRepositionCard(card: Sprite, idx: Int, scale, spacing, xOffset: Int, yOffset: Int) {
-    card.scaleX = scale;
-    card.scaleY = scale;
-    card.x = card.x + (spacing * idx) + xOffset;
+function resizeAndRepositionHUD(element: Sprite, idx: Int, scale: Float, spacing: Int, xOffset: Int, yOffset: Int) {
+    element.scaleX = scale;
+    element.scaleY = scale;
+    element.x = element.x + (spacing * idx) + xOffset;
     var totalYOffset = yOffset + 32;
     var hudPosition = GraphicsSettings.damageHudPosition;
     if (hudPosition == "top") {
-        card.y = card.y + 4 * (totalYOffset);
+        element.y = element.y + 4 * (totalYOffset);
     } else {
-        card.y = card.y - (totalYOffset);
+        element.y = element.y - (totalYOffset);
     }
 }
 
@@ -364,12 +364,12 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
         owner.getDamageCounterContainer().addChild(cooldownSprite);
         owner.getDamageCounterContainer().addChild(iconSprite);
 
-        var baseXOffset = 64;
+        var baseXOffset = 32;
 
-        resizeAndRepositionCard(sprite, idx, 0.75, 45, baseXOffset, 0);
-        resizeAndRepositionCard(outline, idx, 0.75, 45, baseXOffset, 0);
-        resizeAndRepositionCard(cooldownSprite, idx, 0.75, 45, baseXOffset, 0);
-        resizeAndRepositionCard(iconSprite, idx, 0.50, 45, 16 + baseXOffset, 0);
+        resizeAndRepositionHUD(sprite, idx, 0.75, 45, baseXOffset, 0);
+        resizeAndRepositionHUD(outline, idx, 0.75, 45, baseXOffset, 0);
+        resizeAndRepositionHUD(cooldownSprite, idx, 0.75, 45, baseXOffset, 0);
+        resizeAndRepositionHUD(iconSprite, idx, 0.50, 45, 16 + baseXOffset, 0);
 
         return true;
     }, []);
@@ -404,10 +404,28 @@ function drawSpell() {
 }
 
 
+function isSubstring(text: String, substr: String) {
+    if (substr.length > text.length) {
+        return false;
+    }
+    var match = false;
+    Engine.forCount(text.length - substr.length + 1, function (idx: Int) {
+        var temp = text.substr(idx, idx + substr.length);
+        if (temp == substr) {
+            match = true;
+            return false;
+        }
+        return true;
+    }, []);
+    return match;
+
+}
+
+
 // Just a helper function to check if an array contains something
-function contains(arr: Array<any>, item: any) {
+function hasMatchOrSubstring(arr: Array<String>, item: String) {
     for (i in arr) {
-        if (i == item) {
+        if (i == item || isSubstring(item, i)) {
             return true;
         }
     }
@@ -446,7 +464,7 @@ function apiArrSetIdx(arr: ApiVarArray, idx: Int, item: any) {
 }
 
 function castable() {
-    var res = !cooldown.get() && contains(actionable_animations, owner.getAnimation()) == true;
+    var res = !cooldown.get() && hasMatchOrSubstring(actionable_animations, owner.getAnimation()) == true;
     return res;
 }
 

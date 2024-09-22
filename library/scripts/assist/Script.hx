@@ -126,7 +126,8 @@ function vamparismMode() {
 		if (foeAssistCharge >= 0 && foeAssistCharge != null) {
 			foe.setAssistCharge(foe.getAssistCharge() - ((baseDamage * 1000) / (1000 * foeAssistCharge)));
 		}
-		self.getOwner().addDamage(-baseDamage * 0.75);
+
+		self.getOwner().addDamage(-(baseDamage));
 
 	};
 
@@ -190,6 +191,27 @@ function damageRangeCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) 
 	}
 }
 
+function maxDamageCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) {
+	var predicate = rangeCondition(lo, hi);
+
+	return function (card) {
+		var damage = self.getRootOwner().getDamage();
+		var withinDamageRange = damage <= maxDamage;
+		return withinDamageRange && predicate(card);
+	}
+}
+
+function minDamageCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) {
+	var predicate = rangeCondition(lo, hi);
+
+	return function (card) {
+		var damage = self.getRootOwner().getDamage();
+		var withinDamageRange = damage >= minDamage;
+		return withinDamageRange && predicate(card);
+	}
+}
+
+
 
 
 var fireball = deck.createSpell(castFireball, airRangeCondition(4, 6), 60, "fireball");
@@ -197,7 +219,7 @@ var ice = deck.createSpell(castIce, groundRangeCondition(4, 6), 120, "ice");
 var wind_tornado = deck.createSpell(castWhirlwind, airRangeCondition(7, 9), 180, "tornado");
 var earthSpike = deck.createSpell(castEarth, groundRangeCondition(7, 9), 120, "earth");
 var kaioken = deck.createSpell(kaiokenMode, damageRangeCondition(0, 80, 0, 3), 900, "rage");
-var vamparism = deck.createSpell(vamparismMode, damageRangeCondition(81, 999, 0, 3), 900, "vampire");
+var vamparism = deck.createSpell(vamparismMode, damageRangeCondition(81, 9999999, 0, 3), 900, "vampire");
 
 
 

@@ -49,6 +49,8 @@ function onHit(event) {
 }
 
 function update() {
+	self.getOwner().setAssistCharge(0);
+
 	if (self.finalFramePlayed()) {
 		self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 		self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
