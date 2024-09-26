@@ -19,7 +19,7 @@ var deckResource = match.createCustomGameObject(self.getResource().getContent("d
 /**
  * @type {Object} Deck
 
- * @property {function} createSpell
+ * @property {function} createAction
  * @property {function} initializeDeck
  */
 var deck: object = deckResource.exports;
@@ -221,24 +221,16 @@ function minDamageCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) {
 
 
 
-var fireball = deck.createSpell(castFireball, airRangeCondition(4, 6), 60, "fireball");
-var ice = deck.createSpell(castIce, groundRangeCondition(4, 6), 150, "ice");
-var wind_tornado = deck.createSpell(castWhirlwind, airRangeCondition(7, 9), 180, "tornado");
-var earthSpike = deck.createSpell(castEarth, groundRangeCondition(7, 9), 120, "earth");
-var kaioken = deck.createSpell(kaiokenMode, damageRangeCondition(0, 80, 0, 3), 900, "rage");
-var vamparism = deck.createSpell(vamparismMode, damageRangeCondition(81, 9999999, 0, 3), 900, "vampire");
+var fireball = deck.createAction(castFireball, airRangeCondition(4, 6), 60, "fireball");
+var ice = deck.createAction(castIce, groundRangeCondition(4, 6), 150, "ice");
+var wind_tornado = deck.createAction(castWhirlwind, airRangeCondition(7, 9), 180, "tornado");
+var earthSpike = deck.createAction(castEarth, groundRangeCondition(7, 9), 120, "earth");
+var kaioken = deck.createAction(kaiokenMode, damageRangeCondition(0, 80, 0, 3), 900, "rage");
+var vamparism = deck.createAction(vamparismMode, damageRangeCondition(81, 9999999, 0, 3), 900, "vampire");
 
 
 
-/** 
- * @type function
- * @description Initializes the deck with the currently configured spells
- * @param {Object} deck The deck object
- * @param {Int} capacity The maximum number of cards
- * @param {Object[]} spells  The list of spells you want accessible
- * @param {string} spriteId
- * @param {string} cooldownOverlayId
- */
+
 var initializeDeck = deck.initializeDeck;
 // Runs on object init
 function initialize() {

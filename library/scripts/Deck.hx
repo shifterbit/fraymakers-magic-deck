@@ -8,7 +8,7 @@ var active: ApiVarBool = self.makeBool(false);
 var cooldown: ApiVarBool = self.makeBool(false);
 var cards: ApiVarArray = self.makeArray([]);
 var deckCapacity: ApiVarInt = self.makeInt(0);
-var deckSpells: ApiVarArray = self.makeArray([]);
+var deckActions: ApiVarArray = self.makeArray([]);
 var currCard: ApiVarInt = self.makeInt(0);
 var iconEventListeners: ApiVarArray = self.makeArray([]);
 var owner: Character = self.getRootOwner();
@@ -25,36 +25,10 @@ var actionable_animations = [
     "dash", "airdash_land"
 ];
 
-/**
- * @callback PredicateFunction
- * @param {number}
- * @returns {boolean}
- */
 
-
-/**
- * @callback SpellFunction
- */
-
-/**
- * @typedef {Object} Spell
- * @property {SpellFunction} cast Function called when a spell is cast.
- * @property {PredicateFunction} predicateFn Function called to check if the spell if usable
- * @property {Int} cooldownTime cooldown time for the spell
- */
-
-
-/** 
- * Creates a spell
- * @type {function}
- * @param {SpellFunction} spellFn The function that casts the spell.
- * @param {PredicateFunction} predicateFn The function that checks if a spell is currently castable, takes an `Int` as input and returns a `bool`
- * @param {Int} cooldownTIme cooldown time, in frames.
- * @returns {Spell}
- */
-function createSpell(spellFn, predicateFn, cooldownTime: Int, icon) {
+function createAction(actionFn, predicateFn, cooldownTime: Int, icon) {
     return {
-        cast: spellFn,
+        run: actionFn,
         predicate: predicateFn,
         cooldownTime: cooldownTime,
         icon: icon,
@@ -201,42 +175,29 @@ function zeroAssist() {
 
 }
 
-/** 
- * Sets the assist charge to 0 in response to an event.
- * @param {GameObjectEvent} event The event being passed in
- */
+
 function keepAssistBarAtZero(event: GameObjectEvent) {
     zeroAssist();
 }
 
-/** 
- * Attempts to cast a spell.
- * 
- * returns `true` if the spell as successfully been casted and also triggers the spells cooldown.
- * @param {Object} spell The spell object
- * @param {Int} score The card value
- */
-function trySpell(spell, score) {
-    if (spell.predicate(score)) {
-        spell.cast();
-        return spell;
+
+function tryAction(action, score) {
+    if (action.predicate(score)) {
+        action.run();
+        return action;
     } else {
         return null;
     }
 }
 
-/** 
- * Goes through the list of spells on the deck and casts the first one that whose predicate function returns true.
- * @param {Int} card The card value, usually derived from damage.
- */
-function castFirstAvailaleSpell(card: Int) {
-    var casted = null;
-    for (spell in deckSpells.get()) {
-        casted = trySpell(spell, card);
-        if (casted != null) { break; }
+function activateFirstAvailableAction(card: Int) {
+    var triggered = null;
+    for (action in deckActions.get()) {
+        triggered = tryAction(action, card);
+        if (triggered != null) { break; }
     }
-    if (casted != null) {
-        var cooldownTime: Int = casted.cooldownTime;
+    if (triggered != null) {
+        var cooldownTime: Int = triggered.cooldownTime;
         startsplitCooldownTimer(cooldownTime);
     } else {
         startsplitCooldownTimer(15);
@@ -245,12 +206,12 @@ function castFirstAvailaleSpell(card: Int) {
     }
 }
 
-function getSpellIcon(cardIdx: Int) {
+function getIcon(cardIdx: Int) {
     var cardVal = apiArrGetIdx(cards, cardIdx);
-    var spells = deckSpells.get();
-    for (spell in spells) {
-        if (spell.predicate(cardVal)) {
-            return spell.icon;
+    var actions = deckActions.get();
+    for (action in actions) {
+        if (action.predicate(cardVal)) {
+            return action.icon;
         }
     }
     return "default";
@@ -259,7 +220,7 @@ function iconRefresher(currentCard: Int) {
     return function () {
         var icon: Sprite = apiArrGetIdx(iconSprites, currentCard);
         if (icon != null) {
-            icon.currentAnimation = getSpellIcon(currentCard);
+            icon.currentAnimation = getIcon(currentCard);
         }
     }
 
@@ -300,7 +261,7 @@ function addCard(value: Int) {
         apiArrPush(cards, card);
         var sprite: Sprite = apiArrGetIdx(cardSprites, currCard.get()).sprite;
         var icon: Sprite = apiArrGetIdx(iconSprites, currCard.get());
-        var icon_name = getSpellIcon(card);
+        var icon_name = getIcon(card);
         icon.currentAnimation = icon_name;
         sprite.currentFrame = card + 3;
         incrementCard();
@@ -314,22 +275,14 @@ function addCard(value: Int) {
 
 
 
-/** 
- * Initializes the deck with the currently configured spells
- * @param {Object} deck The deck object
- * @param {Int} capacity The maximum number of cards
- * @param {Object[]} spells  The list of spells you want accessible
- * @param {string} spriteId
- * @param {string} cooldownOverlayId
- */
-function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOverlayId, iconsId) {
+function initializeDeck(capacity: Int, actions: Array<any>, spriteId, cooldownOverlayId, iconsId) {
 
 
-    var spellset = [];
-    for (spell in spells) {
-        spellset.push(spell);
+    var actionList = [];
+    for (action in actions) {
+        actionList.push(action);
     }
-    deckSpells.set(spellset);
+    deckActions.set(actionList);
     deckCapacity.set(capacity);
 
     Engine.forCount(capacity, function (idx: Int) {
@@ -386,13 +339,8 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
 
 }
 
-/** 
- * Draws a card from the top of the deck and uses it to cast a spell
- */
-function drawSpell() {
+function drawCard() {
 
-    var rectangle = stage.getCameraBounds();
-    // Engine.log([rectangle.getX(), rectangle.getY()]);
     if (apiArrLength(cards) > 0 && !cooldown.get()) {
         if (!owner.isOnFloor()) {
             owner.playAnimation("assist_call_air");
@@ -408,7 +356,7 @@ function drawSpell() {
         iconSprite.dispose();
         sprite.sprite.dispose();
         decrementCard();
-        castFirstAvailaleSpell(card);
+        activateFirstAvailableAction(card);
     }
 }
 
@@ -472,7 +420,7 @@ function apiArrSetIdx(arr: ApiVarArray, idx: Int, item: any) {
     arr.set(temp);
 }
 
-function castable() {
+function runnable() {
     var res = !cooldown.get() && hasMatchOrSubstring(actionable_animations, owner.getAnimation()) == true;
     return res;
 }
@@ -522,8 +470,8 @@ function update() {
     owner.setAssistCharge(0);
     if (active.get()) {
         owner.removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
-        if (owner.getHeldControls().ACTION && castable()) {
-            drawSpell();
+        if (owner.getHeldControls().ACTION && runnable()) {
+            drawCard();
             if (empty()) {
                 cleanup();
                 self.dispose();
@@ -535,7 +483,7 @@ function update() {
 
 }
 
-self.exports.createSpell = createSpell;
+self.exports.createAction = createAction;
 self.exports.initializeDeck = initializeDeck;
 
 
