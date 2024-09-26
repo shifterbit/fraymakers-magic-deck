@@ -55,10 +55,13 @@ function update() {
 		self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 		self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
 		self.toState(PState.DESTROYING);
+		self.destroy();
+
 	}
 }
 
 function onTeardown() {
 	self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
+	self.destroy();
 }

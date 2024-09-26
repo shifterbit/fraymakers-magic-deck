@@ -4,12 +4,12 @@ var X_SPEED = 7; // X speed of water
 var Y_SPEED = 0; // Y Speed of water
 var maxspd = 1.5;
 // Instance vars
-var life = self.makeInt(60 * 8);
+var life = self.makeInt(60 * 5);
 var originalOwner = null;
 var target = self.makeObject(null);
-var accel = .5; //Acceleration.
+var accel = .1; //Acceleration.
 //  The rate at which it accelerates towards the target.
-var baseSpeed = 3.5;  //Base Speed.
+var baseSpeed = 1;  //Base Speed.
 //How fast the projectile will when first spawned.
 var ang = self.makeFloat(0);  //Angle
 //The angle between the projectile and it's target.
@@ -78,7 +78,7 @@ function initialize() {
 	Common.repositionToEntityEcb(self.getOwner(), self.flipX(64), -50);
 	self.setState(PState.ACTIVE);
 	self.addTimer(1, -1, function () {
-		self.setRotation(self.getRotation() + 4);
+		self.setRotation(self.getRotation() + 1);
 	});
 	setTarget();
 	// self.setXSpeed(X_SPEED);
@@ -122,7 +122,7 @@ function update() {
 		if (life.get() <= 0) {
 			self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 			self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
-			self.toState(PState.DESTROYING);
+			self.destroy();
 		}
 	}
 }
@@ -130,4 +130,5 @@ function update() {
 function onTeardown() {
 	self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
+	self.destroy();
 }

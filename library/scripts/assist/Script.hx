@@ -80,13 +80,13 @@ function kaiokenMode() {
 	self.getOwner().addFilter(outerGlow);
 	var doubleDamage = function (event: GameObjectEvent) {
 		var baseDamage = event.data.hitboxStats.damage;
-		event.data.hitboxStats.damage = baseDamage * 2;
+		event.data.hitboxStats.damage = baseDamage * 1.5;
 		self.getOwner().setAssistCharge(0);
 	};
 	self.getOwner().addEventListener(GameObjectEvent.HITBOX_CONNECTED, doubleDamage, { persistent: true });
 	self.addTimer(10, 60, function () {
 		var owner: Character = self.getRootOwner();
-		owner.addDamage(2);
+		owner.addDamage(1);
 	});
 
 	self.addTimer(1, 60 * 10, function () {
@@ -112,7 +112,6 @@ function vamparismMode() {
 	outerGlow.color = 0x6c3483;
 	var bat: CustomGameObject = match.createCustomGameObject(self.getResource().getContent("bat"), self.getOwner());
 	bat.playAnimation("idle");
-	var owner: Character = self.getOwner();
 	bat.setX(self.getOwner().getX());
 
 
@@ -122,12 +121,20 @@ function vamparismMode() {
 	var drain = function (event: GameObjectEvent) {
 		var baseDamage = event.data.hitboxStats.damage;
 		var foe = event.data.foe;
+		var foeInvincible: Bool = foe.hasBodyStatus(BodyStatus.INVINCIBLE)
+			|| foe.hasBodyStatus(BodyStatus.INVINCIBLE_GRABBABLE)
+			|| foe.hasBodyStatus(BodyStatus.INTANGIBLE);
 		var foeAssistCharge = foe.getAssistContentStat("assistChargeValue");
-		if (foeAssistCharge >= 0 && foeAssistCharge != null) {
+		if (foeAssistCharge >= 0 && foeAssistCharge != null && !foeInvincible) {
 			foe.setAssistCharge(foe.getAssistCharge() - ((baseDamage * 1000) / (1000 * foeAssistCharge)));
 		}
 
-		self.getOwner().addDamage(-(baseDamage));
+
+		if (!foeInvincible) {
+
+			self.getOwner().addDamage(-(1 + (baseDamage * 0.75)));
+		}
+
 
 	};
 
@@ -215,7 +222,7 @@ function minDamageCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) {
 
 
 var fireball = deck.createSpell(castFireball, airRangeCondition(4, 6), 60, "fireball");
-var ice = deck.createSpell(castIce, groundRangeCondition(4, 6), 120, "ice");
+var ice = deck.createSpell(castIce, groundRangeCondition(4, 6), 150, "ice");
 var wind_tornado = deck.createSpell(castWhirlwind, airRangeCondition(7, 9), 180, "tornado");
 var earthSpike = deck.createSpell(castEarth, groundRangeCondition(7, 9), 120, "earth");
 var kaioken = deck.createSpell(kaiokenMode, damageRangeCondition(0, 80, 0, 3), 900, "rage");
@@ -236,6 +243,8 @@ var initializeDeck = deck.initializeDeck;
 // Runs on object init
 function initialize() {
 	deck.initializeDeck(3, [fireball, wind_tornado, earthSpike, ice, kaioken, vamparism], "cards", "cards_cooldown", "card_icons");
+	//	deck.initializeDeck(3, [], "cards", "cards_cooldown", "card_icons");
+
 	// Face the same direction as the user
 	if (self.getOwner().isFacingLeft()) {
 		self.faceLeft();

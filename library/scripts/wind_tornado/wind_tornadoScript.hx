@@ -61,7 +61,7 @@ function update() {
 		if (life.get() <= 0) {
 			self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 			self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
-			self.toState(PState.DESTROYING);
+			self.destroy();
 		}
 	}
 	if (self.finalFramePlayed()) {
@@ -72,4 +72,5 @@ function update() {
 function onTeardown() {
 	self.removeEventListener(EntityEvent.COLLIDE_FLOOR, onGroundHit);
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
+	self.destroy();
 }

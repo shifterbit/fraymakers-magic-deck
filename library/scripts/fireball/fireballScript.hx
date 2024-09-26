@@ -64,4 +64,5 @@ function update() {
 
 function onTeardown() {
 	self.removeEventListener(GameObjectEvent.HIT_DEALT, onHit);
+	self.destroy();
 }

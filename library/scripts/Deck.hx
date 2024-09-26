@@ -219,8 +219,6 @@ function keepAssistBarAtZero(event: GameObjectEvent) {
 function trySpell(spell, score) {
     if (spell.predicate(score)) {
         spell.cast();
-        var cooldownTime: Int = spell.cooldownTime;
-        startsplitCooldownTimer(cooldownTime);
         return spell;
     } else {
         return null;
@@ -232,11 +230,18 @@ function trySpell(spell, score) {
  * @param {Int} card The card value, usually derived from damage.
  */
 function castFirstAvailaleSpell(card: Int) {
+    var casted = null;
     for (spell in deckSpells.get()) {
-        var casted = trySpell(spell, card);
-        if (casted != null) {
-            return;
-        };
+        casted = trySpell(spell, card);
+        if (casted != null) { break; }
+    }
+    if (casted != null) {
+        var cooldownTime: Int = casted.cooldownTime;
+        startsplitCooldownTimer(cooldownTime);
+    } else {
+        startsplitCooldownTimer(15);
+
+
     }
 }
 
@@ -265,7 +270,11 @@ function iconRefresher(currentCard: Int) {
  * @param {GameObjectEvent} event The event passed in by the event listener, typically `HIT_DEALT`
  */
 function addCardEvent(event: GameObjectEvent) {
-    if (!cooldown.get()) {
+    var foe = event.data.foe;
+    var foeInvincible: Bool = foe.hasBodyStatus(BodyStatus.INVINCIBLE)
+        || foe.hasBodyStatus(BodyStatus.INVINCIBLE_GRABBABLE)
+        || foe.hasBodyStatus(BodyStatus.INTANGIBLE);
+    if (!cooldown.get() && !foeInvincible) {
         var hitboxStats: HitboxStats = event.data.hitboxStats;
         var damage = hitboxStats.damage;
         var currentLength = apiArrLength(cards);
@@ -327,8 +336,6 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
         var card = Sprite.create(self.getResource().getContent(spriteId));
         var cardOutline = Sprite.create(self.getResource().getContent(spriteId));
         var cooldownOutline = Sprite.create(self.getResource().getContent(cooldownOverlayId));
-        // var iconResource = self.getResource().getContent("card_icons");
-        // var iconSprite: Sprite = Sprite.create(iconResource);
         var iconSprite = Sprite.create(self.getResource().getContent(iconsId));
 
         iconSprite.currentAnimation = "";
@@ -353,16 +360,16 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
 
     Engine.forCount(capacity, function (idx: Int) {
         var sprite = apiArrGetIdx(cardSprites, idx).sprite;
-        var outline = apiArrGetIdx(outlineSprites, idx);
+        var outline: Sprite = apiArrGetIdx(outlineSprites, idx);
         var cooldownObj = apiArrGetIdx(cooldownSprites, idx);
         var cooldownSprite: Sprite = cooldownObj.sprite;
         var iconSprite = apiArrGetIdx(iconSprites, idx);
-
         applyShader(cooldownObj);
         owner.getDamageCounterContainer().addChild(sprite);
         owner.getDamageCounterContainer().addChild(outline);
         owner.getDamageCounterContainer().addChild(cooldownSprite);
         owner.getDamageCounterContainer().addChild(iconSprite);
+
 
         var baseXOffset = 32;
 
@@ -384,6 +391,8 @@ function initializeDeck(capacity: Int, spells: Array<any>, spriteId, cooldownOve
  */
 function drawSpell() {
 
+    var rectangle = stage.getCameraBounds();
+    // Engine.log([rectangle.getX(), rectangle.getY()]);
     if (apiArrLength(cards) > 0 && !cooldown.get()) {
         if (!owner.isOnFloor()) {
             owner.playAnimation("assist_call_air");
