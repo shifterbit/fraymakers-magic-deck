@@ -1,4 +1,3 @@
-
 var cardSprites: ApiVarArray = self.makeArray([]);
 var outlineSprites: ApiVarArray = self.makeArray([]);
 var cooldownSprites: ApiVarArray = self.makeArray([]);
@@ -14,7 +13,58 @@ var iconEventListeners: ApiVarArray = self.makeArray([]);
 var owner: Character = self.getRootOwner();
 
 
-var actionable_animations = [
+
+
+
+/**
+ * Runs an action for a spell
+ * @callback ActionFunction
+ */
+
+
+/**
+ * Accepts a card and check if it is actionable
+ * @callback PredicateFunction
+ * @param {Int} card
+ * @returns {boolean}
+ */
+
+
+/**
+ * An action to be used by a card
+ * @typedef {Object} Action
+ * @property {ActionFunction} run - function to be run when action is triggered.
+ * @property {PredicateFunction} predicate - function to run, to check if action should be run.
+ * @property {Int} cooldownTimer - Cooldown time, in frames.
+ * @property {string} icon -The icon to be displayed when the action is usable.
+ */
+
+
+/**
+ * A Sprite wrapped with a shader
+ * @typedef {Object} ShaderSprite
+ * @property {Object} sprite - The sprite itself.
+ * @property {Object} shader - The shader to be applied.
+ * @property {function} shaderFn - The shader generation function, to regenerate the shader for reuse.
+ * @property {boolean} applied - whether the shader has been applied.
+ */
+
+
+/**
+ * A Sprite wrapped with a filter
+ * @typedef {Object} FilterSprite
+ * @property {Object} sprite - The sprite itself.
+ * @property {Object} shader - The filter to be applied.
+ * @property {function} shaderFn - The filter generation function, to regenerate the shader for reuse.
+ * @property {boolean} applied - whether the filter has been applied.
+ */
+
+
+/**
+ * Set of animation idsfrom which spells can be used, additionally substring checks will be used if no exact matches have been found
+ * @type {[]string}
+ */
+var actionable_animations: Array<String> = [
     "parry_success",
     "stand", "stand_turn", "idle",
     "walk", "walk_in", "walk_out", "walk_loop",
@@ -25,8 +75,15 @@ var actionable_animations = [
     "dash", "airdash_land"
 ];
 
-
-function createAction(actionFn, predicateFn, cooldownTime: Int, icon) {
+/**
+ * Creates a deck action given an action function, predicate function, cooldowntime and icon
+ * @param {ActionFunction} actionFn - The function that runs when the spell is cast
+ * @param {PredicateFunction} predicateFn - The function that checks if the spell is valid, should accept a single int arguement and return a boolean
+ * @param {Int} cooldownTime - Time in frames for spell cooldown
+ * @param {string} icon - The id of the icon displayed
+ * @returns {Action} The Action Object
+ */
+function createAction(actionFn, predicateFn, cooldownTime: Int, icon: String) {
     return {
         run: actionFn,
         predicate: predicateFn,
@@ -37,15 +94,27 @@ function createAction(actionFn, predicateFn, cooldownTime: Int, icon) {
 }
 
 
-function createSpriteWithCooldownFilter(sprite: Sprite, cooldownFilterFn) {
+/**
+ * Creates a wrapped sprite object with a cooldown filter in it
+ * @param {Object} sprite - Raw Sprite Object where the cooldown will be applied
+ * @param {function} filterFn - function that returns a cooldown.
+ * @returns {FilterSprite} The wrapped cooldown sprite
+ */
+function createSpriteWithFilter(sprite: Sprite, filterFn) {
     return {
         sprite: sprite,
-        filter: cooldownFilterFn(),
-        filterFn: cooldownFilterFn,
+        filter: filterFn(),
+        filterFn: filterFn,
         filterApplied: false,
     }
 }
 
+/**
+ * Creates a wrapped sprite object with a cooldown filter in it
+ * @param {Object} sprite - Raw Sprite Object where the cooldown will be applied
+ * @param {function} shaderFn - function that returns a cooldown.
+ * @returns {ShaderSprite} The wrapped cooldown sprite
+ */
 function createSpriteWithShader(sprite: Sprite, shaderFn) {
     return {
         sprite: sprite,
@@ -57,6 +126,17 @@ function createSpriteWithShader(sprite: Sprite, shaderFn) {
 
 
 
+/**
+ * Resizes and Repositions a UI element according to card position
+ * @param {Object} element - Sprite element to reposition
+ * @param {Int} idx - position
+ * @param {Float} scale - Sprite Scale
+ * @param {Int} spacing - Spacing between other items
+ * @param {Int} xOffset - X Axis Offset
+ * @param {Int} yOffset - Y Axis Offset. Positive is up
+
+
+ */
 function resizeAndRepositionHUD(element: Sprite, idx: Int, scale: Float, spacing: Int, xOffset: Int, yOffset: Int) {
     element.scaleX = scale;
     element.scaleY = scale;
@@ -72,13 +152,21 @@ function resizeAndRepositionHUD(element: Sprite, idx: Int, scale: Float, spacing
 
 
 
-function applyCooldownFilter(spriteObj) {
+/**
+ * Applies the filter to a wrapped sprite
+ * @param {FilterSprite} spriteObj
+ */
+function applyFilter(spriteObj) {
     var sprite: Sprite = spriteObj.sprite;
     var filter: HsbcColorFilter = spriteObj.filter;
     sprite.addFilter(filter);
     spriteObj.filterApplied = true;
 }
 
+/**
+ * Applies the filter to a wrapped sprite
+ * @param {ShaderSprite} spriteObj
+ */
 function applyShader(spriteObj) {
     var sprite: Sprite = spriteObj.sprite;
     var shader: RgbaColorShader = spriteObj.shader;
@@ -86,7 +174,12 @@ function applyShader(spriteObj) {
     spriteObj.shaderApplied = true;
 }
 
-function removeCooldownFilter(spriteObj) {
+
+/**
+ * Removes and Refreshes the filter to a wrapped sprite
+ * @param {FilterSprite} spriteObj
+ */
+function removeFilter(spriteObj) {
     var sprite: Sprite = spriteObj.sprite;
     var filter: HsbcColorFilter = spriteObj.filter;
     sprite.removeFilter(filter);
@@ -96,6 +189,9 @@ function removeCooldownFilter(spriteObj) {
 }
 
 
+/**
+ * Generates the filter used for the cooldown state
+ */
 function newCoolDownFilter() {
     var filter: HsbcColorFilter = new HsbcColorFilter();
     filter.brightness = -0.2;
@@ -103,6 +199,10 @@ function newCoolDownFilter() {
     return filter;
 }
 
+
+/**
+ * Generates the loading shader used for the dynamic cooldown ui
+ */
 function loadingShader() {
     var shader: RgbaColorShader = new RgbaColorShader();
     shader.color = 0x000000;
@@ -119,7 +219,7 @@ function loadingShader() {
 function beginCooldown() {
     cooldown.set(true);
     for (spriteObj in cardSprites.get()) {
-        applyCooldownFilter(spriteObj);
+        applyFilter(spriteObj);
     };
     removeAllHighlights();
     owner.removeEventListener(GameObjectEvent.HIT_DEALT, addCardEvent);
@@ -131,7 +231,7 @@ function beginCooldown() {
 function endCoolDown() {
     cooldown.set(false);
     for (spriteObj in cardSprites.get()) {
-        removeCooldownFilter(spriteObj);
+        removeFilter(spriteObj);
     };
     highlightCurrentCard();
     owner.addEventListener(GameObjectEvent.HIT_DEALT, addCardEvent, { persistent: true });
@@ -142,7 +242,7 @@ function endCoolDown() {
 
 /** 
  * Puts the deck in cooldown mode for a certain number of frames.
- * @param {Int} duration The duration of the timer, in frames.
+ * @param {Int} duration - The duration of the timer, in frames.
  */
 function startCooldownTimer(duration: Int) {
     beginCooldown();
@@ -150,6 +250,11 @@ function startCooldownTimer(duration: Int) {
 
 }
 
+
+/** 
+ * Puts the deck in cooldown mode for a certain number of frames.
+ * @param {Int} duration - The total duration of the timer, in frames.
+ */
 function startsplitCooldownTimer(duration: Int) {
     var currPos = currCard.get();
     var currOverlay = apiArrGetIdx(cooldownSprites, currPos);
@@ -167,20 +272,13 @@ function startsplitCooldownTimer(duration: Int) {
 
 
 }
+
+
 /** 
- * Sets the assist charge to 0.
+ * Attempts to run an action
+ * @param {Action} action - The action object to evaluate
+ * @param {Int} score - The card value
  */
-function zeroAssist() {
-    self.getOwner().setAssistCharge(0);
-
-}
-
-
-function keepAssistBarAtZero(event: GameObjectEvent) {
-    zeroAssist();
-}
-
-
 function tryAction(action, score) {
     if (action.predicate(score)) {
         action.run();
@@ -190,6 +288,11 @@ function tryAction(action, score) {
     }
 }
 
+
+/** 
+ * Goes through the list of registered actions and runs the first available one.
+ * @param {Int} card - The card value
+ */
 function activateFirstAvailableAction(card: Int) {
     var triggered = null;
     for (action in deckActions.get()) {
@@ -201,11 +304,14 @@ function activateFirstAvailableAction(card: Int) {
         startsplitCooldownTimer(cooldownTime);
     } else {
         startsplitCooldownTimer(15);
-
-
     }
 }
 
+
+/** 
+ * Gets the icon id for the selected card
+ * @param {Int} cardIdx - The card index
+ */
 function getIcon(cardIdx: Int) {
     var cardVal = apiArrGetIdx(cards, cardIdx);
     var actions = deckActions.get();
@@ -216,11 +322,16 @@ function getIcon(cardIdx: Int) {
     }
     return "default";
 }
-function iconRefresher(currentCard: Int) {
+
+/** 
+ * Returns an icon refresh function for a given card index
+ * @param {Int} cardIdx - The card index
+ */
+function iconRefresher(cardIdx: Int) {
     return function () {
-        var icon: Sprite = apiArrGetIdx(iconSprites, currentCard);
+        var icon: Sprite = apiArrGetIdx(iconSprites, cardIdx);
         if (icon != null) {
-            icon.currentAnimation = getIcon(currentCard);
+            icon.currentAnimation = getIcon(cardIdx);
         }
     }
 
@@ -228,7 +339,7 @@ function iconRefresher(currentCard: Int) {
 
 /** 
  * Calls `addCard(value)` if the deck isn't in a cooldown state
- * @param {GameObjectEvent} event The event passed in by the event listener, typically `HIT_DEALT`
+ * @param {GameObjectEvent} event - The event passed in by the event listener, typically `HIT_DEALT`
  */
 function addCardEvent(event: GameObjectEvent) {
     var foe = event.data.foe;
@@ -274,10 +385,30 @@ function addCard(value: Int) {
 
 
 
+/**
+ * Initializes a deck from a list of actions, this uses some pretty sane defaults, with a `capacity` of 3 and 
+ * using the default Ids in the template being the following: `"cards"` for `spriteId` of the cards, 
+ * `"cards_cooldown"` for `cooldownOverlayId`,  and `"card_icons"` for `iconsId`
+ * @param {Action[]} actions - The array of actions you generated
+ */
 
+function init(actions: Array<any>) {
+    var spriteId: String = "cards";
+    var cooldownOverlayId: String = "cards_cooldown";
+    var iconsId: String = "card_icons";
+
+    initializeDeck(3, actions,spriteId, cooldownOverlayId, iconsId);
+}
+
+/**
+ * Initializes a deck
+ * @param {Int} capacity - deck capacity
+ * @param {Action[]} actions - The array of actions you generated
+ * @param {String} spriteId - Id For card sprite
+ * @param {String} spriteId - Id the cooldown overlay sprite
+ * @param {String} spriteId - Id For icons sprite
+ */
 function initializeDeck(capacity: Int, actions: Array<any>, spriteId, cooldownOverlayId, iconsId) {
-
-
     var actionList = [];
     for (action in actions) {
         actionList.push(action);
@@ -303,7 +434,7 @@ function initializeDeck(capacity: Int, actions: Array<any>, spriteId, cooldownOv
 
 
 
-        apiArrPush(cardSprites, createSpriteWithCooldownFilter(card, newCoolDownFilter));
+        apiArrPush(cardSprites, createSpriteWithFilter(card, newCoolDownFilter));
         apiArrPush(outlineSprites, cardOutline);
         apiArrPush(iconSprites, iconSprite);
 
@@ -339,8 +470,11 @@ function initializeDeck(capacity: Int, actions: Array<any>, spriteId, cooldownOv
 
 }
 
-function drawCard() {
 
+/** 
+ * Draws a card from the top of the deck
+ */
+function drawCard() {
     if (apiArrLength(cards) > 0 && !cooldown.get()) {
         if (!owner.isOnFloor()) {
             owner.playAnimation("assist_call_air");
@@ -361,7 +495,12 @@ function drawCard() {
 }
 
 
-function isSubstring(text: String, substr: String) {
+/** 
+ * Checks if the substring is contained within another string
+ * @param {String} text - The source string
+ * @param {String} substr - the substring to look for
+ */
+function containsSubstring(text: String, substr: String) {
     if (substr.length > text.length) {
         return false;
     }
@@ -379,10 +518,14 @@ function isSubstring(text: String, substr: String) {
 }
 
 
-// Just a helper function to check if an array contains something
-function hasMatchOrSubstring(arr: Array<String>, item: String) {
+/** 
+ * Checks if any item in the array is either equal to or is a subtring of the target
+ * @param {String[]} arr - array of strings
+ * @param {String} target - target string
+ */
+function hasMatchOrSubstring(arr: Array<String>, target: String) {
     for (i in arr) {
-        if (i == item || isSubstring(item, i)) {
+        if (i == target || containsSubstring(target, i)) {
             return true;
         }
     }
@@ -390,16 +533,30 @@ function hasMatchOrSubstring(arr: Array<String>, item: String) {
 }
 
 
+/** 
+ * Checks if any item in the array is either equal to or is a subtring of the target
+ * @param {ApiVarArray} arr - A Fraymakers API Wrapped array
+ * @param target - value to push to the array
+ */
 function apiArrPush(arr: ApiVarArray, val: any) {
     var temp = arr.get();
     temp.push(val);
     arr.set(temp);
 }
 
+/** 
+ * Returns the length of the array
+ * @param {ApiVarArray} arr - A Fraymakers API Wrapped array
+ */
 function apiArrLength(arr: ApiVarArray) {
     return arr.get().length;
 }
 
+/** 
+ * Pops off the last item of the array
+ * @param {ApiVarArray} arr - A Fraymakers API Wrapped array
+ * @returns The last item of the array
+ */
 function apiArrPop(arr: ApiVarArray) {
     var temp = arr.get();
     var popped = temp.pop();
@@ -407,42 +564,68 @@ function apiArrPop(arr: ApiVarArray) {
     return popped;
 }
 
+
+/** 
+ * Gets an item from the Fraymakers API Wrapped array at a particular index
+ * @param {ApiVarArray} arr - A Fraymakers API Wrapped array
+ * @param {Int} idx - index
+ * @returns The selected item of the array
+ */
 function apiArrGetIdx(arr: ApiVarArray, idx: Int) {
     var temp = arr.get();
     var item = temp[idx];
     return item;
 }
 
-
+/** 
+ * Gets an item from the Fraymakers API Wrapped array at a particular index
+ * @param {ApiVarArray} arr - A Fraymakers API Wrapped array
+ * @param {Int} idx - index
+ * @param {Any} item - Item to insert
+ */
 function apiArrSetIdx(arr: ApiVarArray, idx: Int, item: any) {
     var temp = arr.get();
     temp[idx] = item;
     arr.set(temp);
 }
 
+
+/** 
+ * Checks if the current animation can be acted out of using cards
+ */
 function runnable() {
     var res = !cooldown.get() && hasMatchOrSubstring(actionable_animations, owner.getAnimation()) == true;
     return res;
 }
 
+/** 
+ * Increments the current card index
+ */
 function incrementCard() {
     if (currCard.get() < deckCapacity.get() - 1) {
         currCard.inc();
     }
 }
 
+/** 
+ * Decrements the current card index
+ */
 function decrementCard() {
     if (currCard.get() > 0) {
         currCard.dec();
     }
 }
 
-
+/** 
+ * Checks if the deck is empty
+ */
 function empty() {
     return apiArrLength(cards) == 0;
 }
 
-
+/** 
+ * Cleans up the deck, ensuring all resources are destroyed
+ */
 function cleanup() {
     var dispoables = garbage.get();
     for (i in dispoables) {
@@ -451,12 +634,19 @@ function cleanup() {
     self.destroy();
 }
 
+/** 
+ * Removes all highlights from cards
+ */
 function removeAllHighlights() {
     var outlines = outlineSprites.get();
     Engine.forEach(outlines, function (outline: Sprite, _idx: Int) {
         outline.currentFrame = 1;
     }, []);
 }
+
+/** 
+ * Highlughts only the current card
+ */
 function highlightCurrentCard() {
     removeAllHighlights();
     var currOutline: Sprite = apiArrGetIdx(outlineSprites, currCard.get());
