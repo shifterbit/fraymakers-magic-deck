@@ -11,6 +11,7 @@ var deckActions: ApiVarArray = self.makeArray([]);
 var currCard: ApiVarInt = self.makeInt(0);
 var iconEventListeners: ApiVarArray = self.makeArray([]);
 var owner: Character = self.getRootOwner();
+var cooldownSound: ApiVarString = self.makeString("");
 
 
 
@@ -235,9 +236,10 @@ function endCoolDown() {
     };
     highlightCurrentCard();
     owner.addEventListener(GameObjectEvent.HIT_DEALT, addCardEvent, { persistent: true });
-    AudioClip.play(self.getResource().getContent("cooldownEndSound"));
-
-
+    var cooldownSoundId = cooldownSound.get();
+    if (cooldownSoundId != "") {
+        AudioClip.play(self.getResource().getContent(cooldownSoundId));
+    }
 }
 
 /** 
@@ -390,14 +392,16 @@ function addCard(value: Int) {
  * using the default Ids in the template being the following: `"cards"` for `spriteId` of the cards, 
  * `"cards_cooldown"` for `cooldownOverlayId`,  and `"card_icons"` for `iconsId`
  * @param {Action[]} actions - The array of actions you generated
+ * @param {String} cooldownSoundId
  */
 
-function init(actions: Array<any>) {
+function init(actions: Array<any>, cooldownSoundId: String) {
     var spriteId: String = "cards";
     var cooldownOverlayId: String = "cards_cooldown";
     var iconsId: String = "card_icons";
+    cooldownSound.set(cooldownSoundId);
 
-    initializeDeck(3, actions,spriteId, cooldownOverlayId, iconsId);
+    initializeDeck(3, actions, spriteId, cooldownOverlayId, iconsId);
 }
 
 /**
@@ -407,6 +411,7 @@ function init(actions: Array<any>) {
  * @param {String} spriteId - Id For card sprite
  * @param {String} spriteId - Id the cooldown overlay sprite
  * @param {String} spriteId - Id For icons sprite
+ * @param {String} cooldownSoundId - AudioId for sound played upon cooldown end
  */
 function initializeDeck(capacity: Int, actions: Array<any>, spriteId, cooldownOverlayId, iconsId) {
     var actionList = [];
@@ -675,6 +680,7 @@ function update() {
 
 self.exports.createAction = createAction;
 self.exports.initializeDeck = initializeDeck;
+self.exports.init = init;
 
 
 

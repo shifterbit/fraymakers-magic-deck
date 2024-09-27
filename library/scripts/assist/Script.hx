@@ -20,7 +20,7 @@ var deckResource = match.createCustomGameObject(self.getResource().getContent("d
  * @type {Object} Deck
 
  * @property {function} createAction
- * @property {function} initializeDeck
+ * @property {function} init
  */
 var deck: object = deckResource.exports;
 
@@ -198,7 +198,7 @@ function damageRangeCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) 
 	}
 }
 
-function maxDamageCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) {
+function maxDamageCondition(maxDamage: Int, lo: Int, hi: Int) {
 	var predicate = rangeCondition(lo, hi);
 
 	return function (card) {
@@ -208,7 +208,7 @@ function maxDamageCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) {
 	}
 }
 
-function minDamageCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) {
+function minDamageCondition(minDamage: Int, lo: Int, hi: Int) {
 	var predicate = rangeCondition(lo, hi);
 
 	return function (card) {
@@ -234,7 +234,7 @@ var vamparism = deck.createAction(vamparismMode, damageRangeCondition(81, 999999
 var initializeDeck = deck.initializeDeck;
 // Runs on object init
 function initialize() {
-	deck.initializeDeck(3, [fireball, wind_tornado, earthSpike, ice, kaioken, vamparism], "cards", "cards_cooldown", "card_icons");
+	deck.init([fireball, wind_tornado, earthSpike, ice, kaioken, vamparism], "cooldownEndSound");
 	//	deck.initializeDeck(3, [], "cards", "cards_cooldown", "card_icons");
 
 	// Face the same direction as the user
