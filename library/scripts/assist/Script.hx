@@ -84,7 +84,7 @@ function kaiokenMode() {
 		self.getOwner().setAssistCharge(0);
 	};
 	self.getOwner().addEventListener(GameObjectEvent.HITBOX_CONNECTED, doubleDamage, { persistent: true });
-	self.addTimer(10, 60, function () {
+	self.addTimer(20, 30, function () {
 		var owner: Character = self.getRootOwner();
 		owner.addDamage(1);
 	});
@@ -190,6 +190,7 @@ function groundRangeCondition(lo: Int, hi: Int) {
 
 function damageRangeCondition(minDamage: Int, maxDamage: Int, lo: Int, hi: Int) {
 	var predicate = rangeCondition(lo, hi);
+
 
 	return function (card) {
 		var damage = self.getRootOwner().getDamage();
