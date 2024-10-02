@@ -4,7 +4,7 @@ var X_SPEED = 7; // X speed of water
 var Y_SPEED = 0; // Y Speed of water
 var maxspd = 1.5;
 // Instance vars
-var life = self.makeInt(60 * 5);
+var life = self.makeInt(60 * 4);
 var originalOwner = null;
 var target = self.makeObject(null);
 var accel = .1; //Acceleration.

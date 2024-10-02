@@ -66,7 +66,7 @@ function castEarth() {
 }
 
 
-function kaiokenMode() {
+function berserkMode() {
 	var outerGlow = new GlowFilter();
 	outerGlow.color = 0xFF0000;
 	var middleGlow = new GlowFilter();
@@ -78,12 +78,12 @@ function kaiokenMode() {
 	self.getOwner().addFilter(innerGlow);
 	self.getOwner().addFilter(middleGlow);
 	self.getOwner().addFilter(outerGlow);
-	var doubleDamage = function (event: GameObjectEvent) {
+	var boostDamage = function (event: GameObjectEvent) {
 		var baseDamage = event.data.hitboxStats.damage;
 		event.data.hitboxStats.damage = baseDamage * 1.5;
 		self.getOwner().setAssistCharge(0);
 	};
-	self.getOwner().addEventListener(GameObjectEvent.HITBOX_CONNECTED, doubleDamage, { persistent: true });
+	self.getOwner().addEventListener(GameObjectEvent.HITBOX_CONNECTED, boostDamage, { persistent: true });
 	self.addTimer(20, 30, function () {
 		var owner: Character = self.getRootOwner();
 		owner.addDamage(1);
@@ -94,7 +94,7 @@ function kaiokenMode() {
 	});
 
 	self.addTimer(60 * 10, 1, function () {
-		self.getOwner().removeEventListener(GameObjectEvent.HITBOX_CONNECTED, doubleDamage);
+		self.getOwner().removeEventListener(GameObjectEvent.HITBOX_CONNECTED, boostDamage);
 		self.getOwner().removeFilter(outerGlow);
 		self.getOwner().removeFilter(middleGlow);
 		self.getOwner().removeFilter(innerGlow);
@@ -223,10 +223,10 @@ function minDamageCondition(minDamage: Int, lo: Int, hi: Int) {
 
 
 var fireball = deck.createAction(castFireball, airRangeCondition(4, 6), 60, "fireball");
-var ice = deck.createAction(castIce, groundRangeCondition(4, 6), 150, "ice");
+var ice = deck.createAction(castIce, groundRangeCondition(4, 6), 180, "ice");
 var wind_tornado = deck.createAction(castWhirlwind, airRangeCondition(7, 9), 180, "tornado");
 var earthSpike = deck.createAction(castEarth, groundRangeCondition(7, 9), 120, "earth");
-var kaioken = deck.createAction(kaiokenMode, damageRangeCondition(0, 80, 0, 3), 900, "rage");
+var berserk = deck.createAction(berserkMode, damageRangeCondition(0, 80, 0, 3), 900, "rage");
 var vamparism = deck.createAction(vamparismMode, damageRangeCondition(81, 9999999, 0, 3), 900, "vampire");
 
 
@@ -235,7 +235,7 @@ var vamparism = deck.createAction(vamparismMode, damageRangeCondition(81, 999999
 var initializeDeck = deck.initializeDeck;
 // Runs on object init
 function initialize() {
-	deck.init([fireball, wind_tornado, earthSpike, ice, kaioken, vamparism], "cooldownEndSound");
+	deck.init([fireball, wind_tornado, earthSpike, ice, berserk, vamparism], "cooldownEndSound");
 	//	deck.initializeDeck(3, [], "cards", "cards_cooldown", "card_icons");
 
 	// Face the same direction as the user
