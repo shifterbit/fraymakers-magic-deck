@@ -369,7 +369,7 @@ function addCardEvent(event: GameObjectEvent) {
  * @param {Int} value The card value, usually derived from damage.
  */
 function addCard(value: Int) {
-    var card = value % 10;
+    var card = Math.round(value) % 10;
     if (apiArrLength(cards) < deckCapacity.get()) {
         apiArrPush(cards, card);
         var sprite: Sprite = apiArrGetIdx(cardSprites, currCard.get()).sprite;
